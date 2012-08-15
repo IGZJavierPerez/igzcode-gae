@@ -61,6 +61,40 @@ public class DataTableList {
 	public void AddVar ( String p_label, int p_int ) {
 		_AddVar( p_label, String.valueOf(p_int) );
 	}
+
+	/**
+	 * Add a float variable.
+	 * 
+	 * <pre>
+	 * {@code
+	 * DataTableList dtl = new DataTableList();
+	 * dtl.AddVar("name", 10.01);
+	 * // Result: {"name":10.01}
+	 * }
+	 * </pre>
+	 * @param p_label Variable name
+	 * @param p_int Variable value
+	 */
+	public void AddVar ( String p_label, float p_float ) {
+		_AddVar( p_label, String.valueOf(p_float) );
+	}
+
+	/**
+	 * Add a double variable.
+	 * 
+	 * <pre>
+	 * {@code
+	 * DataTableList dtl = new DataTableList();
+	 * dtl.AddVar("name", 10.0198273);
+	 * // Result: {"name":10.0198273}
+	 * }
+	 * </pre>
+	 * @param p_label Variable name
+	 * @param p_int Variable value
+	 */
+	public void AddVar ( String p_label, double p_double ) {
+		_AddVar( p_label, String.valueOf(p_double) );
+	}
 	
 	/**
 	 * Add a boolean variable.

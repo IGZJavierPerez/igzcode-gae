@@ -404,8 +404,10 @@ public abstract class AbstractFactory<DtoType> extends DAOBase {
 				query.filter( filter.GetName(), filter.GetValue() );
 			}
 		}
-
-		query.order(p_order);
+		
+		if ( !StringUtil.IsNullOrEmpty(p_order) ) {
+			query.order(p_order);
+		}
 		
 		if ( p_limit != null && p_limit > 0 ) {
 			query.limit(p_limit);

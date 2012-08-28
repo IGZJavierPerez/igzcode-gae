@@ -385,23 +385,32 @@ public abstract class AbstractFactory<DtoType> extends DAOBase {
 	 * @return a list with entities found ordered by p_order
 	 */
 	protected List<DtoType> _Find ( String p_queryString, String p_order, Integer p_limit ) {
+		return _Find(p_queryString, p_order, p_limit, null);
+	}
+	
+	protected List<DtoType> _Find ( String p_queryString, String p_order, Integer p_limit, NameValueArray p_filters ) {
 		
 		Query<DtoType> query = _GetQuery();
 		
 		if ( !StringUtil.IsNullOrEmpty(p_queryString) ) {
 			String[] words = StringUtil.RemoveAccents(p_queryString.trim().toLowerCase()).split(" ");
-			
 			for ( String word : words ) {
 				query.filter("_SearchTokens", word);
 			}
 		}
 		
+		if ( p_filters != null ) {
+			for ( NameValue filter : p_filters ) {
+				query.filter( filter.GetName(), filter.GetValue() );
+			}
+		}
+
 		query.order(p_order);
 		
 		if ( p_limit != null && p_limit > 0 ) {
 			query.limit(p_limit);
 		}
-		
+				
 		return query.list();
 	}
 	
@@ -417,15 +426,23 @@ public abstract class AbstractFactory<DtoType> extends DAOBase {
 	 * 
 	 * @param p_filter A query filter
 	 * @param p_filterValue A query filter value
+	 * @param p_order A query filter value
 	 * 
 	 * @return a list of entities with the query results
 	 */
-	protected List<DtoType> _FindByProperty ( String p_filter, Object p_filterValue ) {
-		Query<DtoType> query = _GetQuery();
-        query.filter( p_filter, p_filterValue );
-        return query.list();
+	protected List<DtoType> _FindByProperty ( String p_filter, Object p_filterValue, String p_order, Integer p_limit ) {
+		NameValueArray filters = new NameValueArray();
+		filters.Add(p_filter, p_filterValue);
+		return _Find(null, p_order, p_limit, filters);
+	}
+
+	protected List<DtoType> _FindByProperty ( String p_filter, Object p_filterValue, String p_order) {
+		return _FindByProperty(p_filter, p_filterValue, p_order, null);
 	}
 	
+	protected List<DtoType> _FindByProperty ( String p_filter, Object p_filterValue) {
+		return _FindByProperty(p_filter, p_filterValue, null, null);
+	}
 	/**
 	 * Search entities by a collection of filters.
 	 * A convenience method, shorthand for creating a query and set a collection of filters.
@@ -443,14 +460,16 @@ public abstract class AbstractFactory<DtoType> extends DAOBase {
 	 * 
 	 * @return a list of entities with the query results
 	 */
-	protected List<DtoType> _FindByProperties ( NameValueArray p_filters ) {
-		Query<DtoType> query = _GetQuery();
-		
-		for ( NameValue filter : p_filters ) {
-			query.filter( filter.GetName(), filter.GetValue() );
-		}
-		
-		return query.list();
+	protected List<DtoType> _FindByProperties ( NameValueArray p_filters, String p_order, Integer p_limit ) {
+		return _Find(null, p_order, p_limit, p_filters);
+	}
+	
+	protected List<DtoType> _FindByProperties ( NameValueArray p_filters, String p_order ) {
+		return _FindByProperties(p_filters, p_order, null);
+	}
+	
+	protected List<DtoType> _FindByProperties ( NameValueArray p_filters) {
+		return _FindByProperties(p_filters, null, null);
 	}
 	
 	/**

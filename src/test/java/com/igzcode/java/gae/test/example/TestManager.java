@@ -3,6 +3,7 @@ package com.igzcode.java.gae.test.example;
 import java.util.List;
 
 import com.googlecode.objectify.Query;
+import com.igzcode.java.util.collection.NameValueArray;
 
 public class TestManager extends TestFactory {
 	
@@ -38,8 +39,11 @@ public class TestManager extends TestFactory {
 		return _FindAll(null);
 	}
 	
-	public List<TestDto> FindByProperty ( String p_property, Object p_value ) {
-		return FindByProperty(p_property, p_value);
+	public List<TestDto> FindByProperty ( NameValueArray p_filters, String p_order, Integer p_limit ) {
+		return _FindByProperties(p_filters, p_order, p_limit);
 	}
+	
+	
+	
 	
 }

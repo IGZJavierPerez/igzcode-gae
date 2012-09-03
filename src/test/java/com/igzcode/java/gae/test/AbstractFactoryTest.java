@@ -174,7 +174,7 @@ public class AbstractFactoryTest extends LocalDatastoreTestCase {
 		_testM.Save( test2Dto );
 		
 		TestDto test3Dto = new TestDto();
-		test3Dto.SetPrice( new Float(50.55) );
+		test3Dto.SetPrice( new Float(50.56) );
 		test3Dto.SetTitle("Test Cheaper B");
 		test3Dto.SetSummary( new Text("Summary Cheaper") );
 		_testM.Save( test3Dto );

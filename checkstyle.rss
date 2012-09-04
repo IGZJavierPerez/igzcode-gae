@@ -6,7 +6,7 @@
     <link>${project.url}</link>
     <description>IGZCode GAE - Checkstyle report</description>
     <language>en-us</language>
-    <copyright>&#169;2012</copyright>
+    <copyright>&#169;2012 Intelygenz</copyright>
     <item>
       <title>File: 19,
              Errors: 4202,

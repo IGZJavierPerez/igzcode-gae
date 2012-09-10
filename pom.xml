@@ -1,82 +1,94 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
+
 	<parent>
 		<groupId>com.igzcode.java</groupId>
 		<artifactId>igzcode-basepom</artifactId>
-		<version>0.0.1-SNAPSHOT</version>
+		<version>1.0</version>
 	</parent>
-	
+
 	<artifactId>igzcode-gae</artifactId>
-	<version>1.4-SNAPSHOT</version>
+	<version>1.5-SNAPSHOT</version>
+	<packaging>jar</packaging>
 	<name>IGZCode GAE</name>
-	<description>A GAE library for general purpose (SDK v1.6.6)</description>
+	<description>A GAE library with design a pattern (DTO/factory/manager) and a few utility clases and anotations, like language manager, or @searcheable anotations for persistent objects</description>
+
+	<developers>
+		<developer>
+			<email>alejandro.gonzalez@intelygenz.com</email>
+			<name>Alejandro González</name>
+			<url>https://github.com/alejandrogonzalez</url>
+			<organization>Intelygenz</organization>
+			<roles>
+				<role>architect</role>
+				<role>developer</role>
+			</roles>
+		</developer>
+		<developer>
+			<email>angel.sanchez@intelygenz.com</email>
+			<name>Ángel Sanchez</name>
+			<url>https://github.com/angelsanchez</url>
+			<organization>Intelygenz</organization>
+			<roles>
+				<role>architect</role>
+				<role>developer</role>
+			</roles>
+		</developer>
+	</developers>
+
+	<ciManagement>
+		<system>CI jenkins</system>
+		<url>http://http://jenkins.intelygenz.com/view/igzcode-gae/</url>
+	</ciManagement>
+
+	<scm>
+		<connection>scm:git:https://github.com/intelygenz/igzcode-gae.git</connection>
+	</scm>
 
 	<properties>
-		<gaeVersion>1.6.6</gaeVersion>
+		<gae.version>1.7.0</gae.version>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<git.name>igzcode-gae</git.name>
 	</properties>
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>2.3.1</version>
-				<configuration>
-					<source>1.6</source>
-					<target>1.6</target>
-				</configuration>
-			</plugin>
-			<plugin>
-				<!-- Automatic generate sources before installing -->
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-source-plugin</artifactId>
-				<version>2.1.2</version>
-				<executions>
-					<execution>
-						<id>attach-sources</id>
-						<phase>verify</phase>
-						<goals>
-							<goal>jar-no-fork</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-		</plugins>
-	</build>
-
+	
 	<dependencies>
 		<!-- IGZCODE -->
 		<dependency>
 			<groupId>com.igzcode.java</groupId>
 			<artifactId>igzcode-util</artifactId>
-			<version>1.3-SNAPSHOT</version>
+			<version>1.4</version>
 		</dependency>
-		
-		
+		<!-- GOOGLE -->
 		<dependency>
-            <groupId>com.google.code.gson</groupId>
-            <artifactId>gson</artifactId>
-            <version>2.1</version>
-        </dependency>
+			<groupId>com.google.code.gson</groupId>
+			<artifactId>gson</artifactId>
+			<version>2.1</version>
+		</dependency>
 		<dependency>
 			<groupId>com.google.appengine</groupId>
 			<artifactId>appengine-api-1.0-sdk</artifactId>
-			<version>${gaeVersion}</version>
+			<version>${gae.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.appengine</groupId>
 			<artifactId>appengine-api-labs</artifactId>
-			<version>${gaeVersion}</version>
+			<version>${gae.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.appengine</groupId>
 			<artifactId>appengine-jsr107cache</artifactId>
-			<version>${gaeVersion}</version>
+			<version>${gae.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.appengine.orm</groupId>
 			<artifactId>datanucleus-appengine</artifactId>
 			<version>2.0.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.googlecode.objectify</groupId>
+			<artifactId>objectify</artifactId>
+			<version>3.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.datanucleus</groupId>
@@ -88,6 +100,7 @@
 			<artifactId>datanucleus-jpa</artifactId>
 			<version>2.1.8</version>
 		</dependency>
+
 		<dependency>
 			<groupId>org.apache.geronimo.specs</groupId>
 			<artifactId>geronimo-jpa_3.0_spec</artifactId>
@@ -108,37 +121,27 @@
 			<artifactId>jsr107cache</artifactId>
 			<version>1.1</version>
 		</dependency>
-
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>servlet-api</artifactId>
 			<version>2.5</version>
 		</dependency>
-
-		<dependency>
-			<groupId>com.googlecode.objectify</groupId>
-			<artifactId>objectify</artifactId>
-			<version>3.0</version>
-		</dependency>
-
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
 			<version>1.6.0</version>
 		</dependency>
-
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-classic</artifactId>
 			<version>0.9.22</version>
 		</dependency>
-
 		<dependency>
 			<groupId>net.sf.opencsv</groupId>
 			<artifactId>opencsv</artifactId>
 			<version>2.3</version>
 		</dependency>
-		
+
 		<!-- JERSEY -->
 		<dependency>
 			<groupId>com.sun.jersey</groupId>
@@ -160,19 +163,18 @@
 			<artifactId>jersey-client</artifactId>
 			<version>1.13-b01</version>
 		</dependency>
-		
 
 		<!-- TESTING -->
 		<dependency>
 			<groupId>com.google.appengine</groupId>
 			<artifactId>appengine-api-stubs</artifactId>
-			<version>${gaeVersion}</version>
+			<version>${gae.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.google.appengine</groupId>
 			<artifactId>appengine-testing</artifactId>
-			<version>${gaeVersion}</version>
+			<version>${gae.version}</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
@@ -182,24 +184,6 @@
 			<id>objectify-appengine</id>
 			<url>http://objectify-appengine.googlecode.com/svn/maven</url>
 		</repository>
-		<repository>
-			<id>igzcode-releases</id>
-			<name>Repositorio de IGZcode</name>
-			<url>http://nexus.igzcode.com/content/repositories/releases/</url>
-		</repository>
-		<repository>
-			<id>igzcode-snapshots</id>
-			<name>Repositorio de IGZcode</name>
-			<url>http://nexus.igzcode.com/content/repositories/snapshots/</url>
-		</repository>
 	</repositories>
-	
-	<distributionManagement>
-		<site>
-			<id>igzcode-javadoc-ftp</id>
-			<name>IGZCode GAE</name>
-			<url>ftp://176.34.225.39/igzcode/javadoc/ROOT/igzcode-gae</url>
-		</site>
-	</distributionManagement>
 
 </project>

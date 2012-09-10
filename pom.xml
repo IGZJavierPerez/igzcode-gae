@@ -8,7 +8,7 @@
 	</parent>
 
 	<artifactId>igzcode-gae</artifactId>
-	<version>1.5</version>
+	<version>1.6-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	<name>IGZCode GAE</name>
 	<description>A GAE library with design a pattern (DTO/factory/manager) and a few utility clases and anotations, like language manager, or @searcheable anotations for persistent objects</description>
@@ -43,7 +43,7 @@
 
 	<scm>
 		<connection>scm:git:https://github.com/intelygenz/igzcode-gae.git</connection>
-	  <tag>igzcode-gae-1.5</tag>
+	  <tag>HEAD</tag>
   </scm>
 
 	<properties>

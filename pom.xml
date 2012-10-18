@@ -57,14 +57,9 @@
 		<dependency>
 			<groupId>com.igzcode.java</groupId>
 			<artifactId>igzcode-util</artifactId>
-			<version>1.4</version>
+			<version>1.5-SNAPSHOT</version>
 		</dependency>
 		<!-- GOOGLE -->
-		<dependency>
-			<groupId>com.google.code.gson</groupId>
-			<artifactId>gson</artifactId>
-			<version>2.1</version>
-		</dependency>
 		<dependency>
 			<groupId>com.google.appengine</groupId>
 			<artifactId>appengine-api-1.0-sdk</artifactId>

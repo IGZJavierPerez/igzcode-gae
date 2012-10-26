@@ -14,7 +14,7 @@ import com.igzcode.java.gae.configuration.ConfigurationManager;
  */
 public class ConfigUtil {
 	
-	static private boolean isDev;
+	static private boolean isDev = false;
 	
 	static private HashMap<String, String> allCachedValues;
 	static private HashMap<String, String> publicCachedValues;
@@ -49,7 +49,7 @@ public class ConfigUtil {
 	 * @return The configuration value
 	 */
 	static public String get ( String p_key ) {
-		_checkCachedValues();
+		checkCachedValues();
 		return allCachedValues.get(p_key);
 	}
 	
@@ -76,11 +76,11 @@ public class ConfigUtil {
 	 * @return A simple JSON with all public configurations values
 	 */
 	static public String getPublicConfigJSON () {
-		_checkCachedValues();
+		checkCachedValues();
 		return new Gson().toJson(publicCachedValues);
 	}
 
-	static private void _checkCachedValues () {
+	static private void checkCachedValues () {
 		if ( allCachedValues == null ) {
 			setCachedValues();
 		}

@@ -12,20 +12,27 @@ import com.googlecode.objectify.annotation.OnSave;
 import com.googlecode.objectify.annotation.Unindex;
 
 @Entity
-@Index
 public class TestDto {
 	
 	@Id
 	private Long bookId;
 	
+	@Index
 	private Date created;
-	private Date updated;
 	
+    private Date updated;
+	
+	@Index
 	private String title;
+	
+	@Index
 	private Float price;
 	
 	@Unindex
 	private Text summary;
+	
+	@Unindex
+	private String unindexedField;
 
 	public TestDto () {
 		super();
@@ -53,6 +60,15 @@ public class TestDto {
 	public void setBookId(Long bookId) {
 		this.bookId = bookId;
 	}
+	
+	
+	public String getUnindexedField() {
+        return unindexedField;
+    }
+
+    public void setUnindexedField(String unindexedField) {
+        this.unindexedField = unindexedField;
+    }
 	
 
 	public String getTitle() {

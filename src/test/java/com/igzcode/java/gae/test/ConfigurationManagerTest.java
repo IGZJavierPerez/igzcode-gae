@@ -7,12 +7,9 @@ import com.igzcode.java.gae.configuration.ConfigurationManager;
 
 public class ConfigurationManagerTest extends LocalDatastoreTestCase {
 	
-	private ConfigurationManager _confM = null;
+	static private ConfigurationManager _confM = ConfigurationManager.getInstance();
 	
-    private void _setUpTest() {
-    	_confM = ConfigurationManager.getInstance();
-		
-    }
+    private void _setUpTest() {}
 
 	@Test
 	public void testSetValue() {

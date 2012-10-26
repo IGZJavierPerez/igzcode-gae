@@ -369,6 +369,10 @@ public abstract class AbstractFactory<DtoType> {
 		return findByProperty(p_filter, p_filterValue, p_order, null);
 	}
 	
+	public List<DtoType> findByProperty ( String p_filter, Object p_filterValue, Integer p_limit ) {
+	    return findByProperty(p_filter, p_filterValue, null, p_limit);
+	}
+	
 	public List<DtoType> findByProperty ( String p_filter, Object p_filterValue) {
 		return findByProperty(p_filter, p_filterValue, null, null);
 	}
@@ -395,6 +399,10 @@ public abstract class AbstractFactory<DtoType> {
 	
 	public List<DtoType> findByProperties ( NameValueArray p_filters, String p_order ) {
 	    return find(p_order, null, p_filters);
+	}
+	
+	public List<DtoType> findByProperties ( NameValueArray p_filters, Integer p_limit ) {
+	    return find(null, p_limit, p_filters);
 	}
 	
 	public List<DtoType> findByProperties ( NameValueArray p_filters) {

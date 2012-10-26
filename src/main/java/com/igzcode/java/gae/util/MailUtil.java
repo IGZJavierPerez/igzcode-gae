@@ -32,7 +32,7 @@ public class MailUtil {
 	 * @throws UnsupportedEncodingException
 	 * @throws MessagingException
 	 */
-	static public void SendTextMail(
+	static public void sendTextMail(
 			String[] p_from
 			, String[][] p_to
 			, String[][] p_cc
@@ -41,7 +41,7 @@ public class MailUtil {
 			, String p_subject
 			, String p_body ) throws UnsupportedEncodingException, MessagingException{
 		
-		_SendMail(
+		sendMail(
 				p_from
 				,p_to
 				,p_cc
@@ -65,7 +65,7 @@ public class MailUtil {
 	 * @throws UnsupportedEncodingException
 	 * @throws MessagingException
 	 */
-	static public void SendHtmlMail(
+	static public void sendHtmlMail(
 			String[] p_from
 			, String[][] p_to
 			, String[][] p_cc
@@ -74,7 +74,7 @@ public class MailUtil {
 			, String p_subject
 			, String p_body ) throws UnsupportedEncodingException, MessagingException{
 		
-		_SendMail(
+		sendMail(
 				p_from
 				,p_to
 				,p_cc
@@ -85,8 +85,8 @@ public class MailUtil {
 				,p_body );
 	}
 	
-	static private void _SendMail(
-			String[] p_from
+	static private void sendMail(
+			  String[] p_from
 			, String[][] p_to
 			, String[][] p_cc
 			, String[][] p_bcc

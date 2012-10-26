@@ -43,8 +43,13 @@ public class ConfigurationManager extends ConfigurationFactory {
 	 * @param p_private Indicate if a configuration must be public or not
 	 */
 	public void setValue ( String p_key, String p_value, Boolean p_private ) {
-		ConfigurationDto configDto = new ConfigurationDto(p_key, p_value, p_private);
-		save(configDto);
+	    if ( !StringUtil.IsNullOrEmpty(p_key) && !StringUtil.IsNullOrEmpty(p_value) && p_private != null ) {
+	        ConfigurationDto configDto = new ConfigurationDto(p_key, p_value, p_private);
+	        save(configDto);
+	    }
+	    else {
+	        throw new NullPointerException();
+	    }
 	}
 	
 	/**

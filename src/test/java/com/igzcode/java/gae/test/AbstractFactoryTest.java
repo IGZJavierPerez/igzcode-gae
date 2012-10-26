@@ -15,80 +15,73 @@ import com.igzcode.java.util.collection.NameValueArray;
 
 public class AbstractFactoryTest extends LocalDatastoreTestCase {
     
-	private String testTitle = "";
+	final private String testTitle = "A example title: ñéá_!\"";
+	
 	private TestDto testDto = null;
 	
 	static private TestManager testManager = TestManager.getInstance();
 	
 	
     private void setUpTest() {
-		testTitle= "A example title: ñéá_!\"";
-		
 		this.testDto = new TestDto();
-		
 		this.testDto.setPrice( new Float(50.50));
 		this.testDto.setTitle( testTitle );
 		this.testDto.setSummary( new Text("summary") );
+		testManager.save( testDto );
     }
 
 	@Test
 	public void testSave() {
 		setUpTest();
 		
-		testManager.save( testDto );
+		// save only one
 		Assert.assertEquals(1, testManager.findAll().size());
+		
+		// save a collection of DTOs (batch save)
+		List<TestDto> dtos = new ArrayList<TestDto>();
+		dtos.add(new TestDto());
+		dtos.add(new TestDto());
+		dtos.add(new TestDto());
+		dtos.add(new TestDto());
+		testManager.save( dtos );
+		
+		Assert.assertEquals(dtos.size() + 1, testManager.findAll().size());
 	}
 	
 	@Test
 	public void testUpdate() {
 		setUpTest();
 		
-		testManager.save( testDto );
 		Assert.assertEquals(1, testManager.findAll().size());
 		
-		testDto.setTitle( "Nuevo Titulo" );
+		final String NEW_TITLE = "New Title";
+		
+		testDto.setTitle( NEW_TITLE );
 		testManager.save( testDto );
 		
 		Assert.assertEquals(1, testManager.findAll().size());
 		
 		TestDto foundTestDto = testManager.get(testDto.getBookId());
-		Assert.assertEquals("Nuevo Titulo", foundTestDto.getTitle() );
+		Assert.assertEquals(NEW_TITLE, foundTestDto.getTitle() );
 	}
 	
 	@Test
 	public void testGetById() {
 		setUpTest();
 		
-		testManager.save( testDto );
 		TestDto foundTestDto = testManager.get(testDto.getBookId());
-		Assert.assertEquals(testDto.getBookId(), foundTestDto.getBookId());
-	}
-	
-	@Test
-	public void testFind() {
-		setUpTest();
-		
-		testManager.save( testDto );
-		testManager.save( testDto );
-		testManager.save( testDto );
-		testManager.save( testDto );
-		
-		List<TestDto> tests = testManager.findByProperty( "title", testDto.getTitle() );
-		Assert.assertEquals("Find by title exact", 1, tests.size());
-		
-		
-		List<TestDto> list = ofy().load().type(TestDto.class).filter("title", "false").list();
-		Assert.assertEquals("Find whitout results", 0, list.size());
-		
-		
-		Assert.assertEquals("Find whitout results", 0, testManager.findByProperty( "title", "false title" ).size());
+		Assert.assertEquals(testDto.getTitle(), foundTestDto.getTitle());
+        Assert.assertEquals(testDto.getBookId(), foundTestDto.getBookId());
+        Assert.assertEquals(testDto.getCreated(), foundTestDto.getCreated());
+        Assert.assertEquals(testDto.getPrice(), foundTestDto.getPrice());
+        Assert.assertEquals(testDto.getSummary(), foundTestDto.getSummary());
+        Assert.assertEquals(testDto.getUpdated(), foundTestDto.getUpdated());
 	}
 	
 	@Test
 	public void testDelete() {
 		setUpTest();
 		
-		testManager.save( testDto );
 		TestDto foundTestDto = testManager.get(testDto.getBookId());
 		Assert.assertEquals(testDto.getBookId(), foundTestDto.getBookId());
 		
@@ -101,8 +94,6 @@ public class AbstractFactoryTest extends LocalDatastoreTestCase {
 	@Test
 	public void testDeleteArray() {
 		setUpTest();
-		
-		testManager.save( testDto );
 		
 		TestDto secondTestDto = new TestDto();
 		secondTestDto.setPrice( new Float(50.50));
@@ -123,10 +114,8 @@ public class AbstractFactoryTest extends LocalDatastoreTestCase {
 	}
 	
 	@Test
-	public void testdeleteAll() {
+	public void testDeleteAll() {
 		setUpTest();
-		
-		testManager.save( testDto );
 		
 		TestDto secondTestDto = new TestDto();
 		secondTestDto.setPrice( new Float(50.50));
@@ -143,10 +132,8 @@ public class AbstractFactoryTest extends LocalDatastoreTestCase {
 	}
 	
 	@Test
-	public void testfindAll() {
+	public void testFindAll() {
 		setUpTest();
-		
-		testManager.save( testDto );
 		
 		TestDto secondTestDto = new TestDto();
 		secondTestDto.setPrice( new Float(50.50));
@@ -155,19 +142,63 @@ public class AbstractFactoryTest extends LocalDatastoreTestCase {
 		
 		testManager.save( secondTestDto );
 		
-		Assert.assertEquals(2, testManager.findAll().size());
-		
 		List<TestDto> tests = testManager.findAll();
 		Assert.assertEquals(2, tests.size());
 		
 	}
 	
-
+	@Test
+    public void testFindByProperty() {
+	    
+        // Create a set of DTOs
+        TestDto testDto = new TestDto();
+        testDto.setPrice( new Float(58.50) );
+        testDto.setTitle("Unique title");
+        testDto.setSummary( new Text("Summary") );
+        testManager.save( testDto );
+        
+        TestDto test2Dto = new TestDto();
+        test2Dto.setPrice( new Float(10) );
+        test2Dto.setTitle("Repeat title");
+        test2Dto.setSummary( new Text("Summary") );
+        testManager.save( test2Dto );
+        
+        TestDto test3Dto = new TestDto();
+        test3Dto.setPrice( new Float(20) );
+        test3Dto.setTitle("Repeat title");
+        test3Dto.setSummary( new Text("Summary") );
+        test3Dto.setUnindexedField("value");
+        testManager.save( test3Dto );
+        
+        // find by title exact
+        List<TestDto> tests = testManager.findByProperty( "title", testDto.getTitle() );
+        Assert.assertEquals("Find by title exact", 1, tests.size());
+        
+        // find by property with order
+        tests = testManager.findByProperty( "title", "Repeat title", "price" );
+        Assert.assertEquals( 2, tests.size());
+        Assert.assertEquals( test2Dto.getPrice(), tests.get(0).getPrice());
+        Assert.assertEquals( test3Dto.getPrice(), tests.get(1).getPrice());
+        
+        // find by property with limit
+        tests = testManager.findByProperty( "title", "Repeat title", 1 );
+        Assert.assertEquals( 1, tests.size());
+        
+        // find by property with order and limit
+        tests = testManager.findByProperty( "title", "Repeat title", "price", 1 );
+        Assert.assertEquals( 1, tests.size());
+        
+        
+        // find without results
+        List<TestDto> list = ofy().load().type(TestDto.class).filter("title", "false").list();
+        Assert.assertEquals("Find whitout results", 0, list.size());
+        
+    }
 	
 	@Test
-	public void testFindByProperty() {
-		setUpTest();
+	public void testFindByProperties () {
 		
+		// Create a set of DTOs
 		TestDto testDto = new TestDto();
 		testDto.setPrice( new Float(58.50) );
 		testDto.setTitle("Test Expensive");
@@ -184,32 +215,73 @@ public class AbstractFactoryTest extends LocalDatastoreTestCase {
 		test3Dto.setPrice( new Float(50.50) );
 		test3Dto.setTitle("Test Cheaper B");
 		test3Dto.setSummary( new Text("Summary Cheaper") );
+		test3Dto.setUnindexedField("value");
 		testManager.save( test3Dto );
 		
+		
+		// find one entity by its properties
 		NameValueArray filters = new NameValueArray();
-		filters.Add("price", new Float(58.50));
+		filters.Add("price", testDto.getPrice());
+		filters.Add("created", testDto.getCreated());
+		filters.Add("title", testDto.getTitle());
 		List<TestDto> testL = testManager.findByProperties( filters );
+		
 		Assert.assertEquals(1, testL.size());
-		Assert.assertEquals("Test Expensive", testL.get(0).getTitle());
+		
+		Assert.assertEquals(testDto.getTitle(), testL.get(0).getTitle());
+		Assert.assertEquals(testDto.getBookId(), testL.get(0).getBookId());
+		Assert.assertEquals(testDto.getCreated(), testL.get(0).getCreated());
+		Assert.assertEquals(testDto.getPrice(), testL.get(0).getPrice());
+		Assert.assertEquals(testDto.getSummary(), testL.get(0).getSummary());
+		Assert.assertEquals(testDto.getUpdated(), testL.get(0).getUpdated());
+		
+		
 		
 		filters = new NameValueArray();
 		filters.Add("price", new Float(50.50));
-		testL = testManager.findByProperties( filters, "price", null );
+		
+		// find various entities by its properties
+		testL = testManager.findByProperties( filters );
 		Assert.assertEquals(2, testL.size());
-		Assert.assertEquals("Test Cheaper A", testL.get(0).getTitle());
-		Assert.assertEquals("Test Cheaper B", testL.get(1).getTitle());
 		
-		filters = new NameValueArray();
-		filters.Add("price", new Float(50.50));
-		testL = testManager.findByProperties( filters, "-title", 1 );
-		Assert.assertEquals(1, testL.size());
-		Assert.assertEquals("Test Cheaper B", testL.get(0).getTitle());
 		
+		// find various entities by its properties with oder
+		testL = testManager.findByProperties( filters, "title" );
+		Assert.assertEquals(2, testL.size());
+		Assert.assertEquals(test2Dto.getTitle(), testL.get(0).getTitle());
+        Assert.assertEquals(test3Dto.getTitle(), testL.get(1).getTitle());
+		
+        
+        // find various entities by its properties with oder desc
+		testL = testManager.findByProperties( filters, "-title" );
+		Assert.assertEquals(2, testL.size());
+		Assert.assertEquals(test2Dto.getTitle(), testL.get(1).getTitle());
+        Assert.assertEquals(test3Dto.getTitle(), testL.get(0).getTitle());
+        
+        
+        // find various entities by its properties with limit
+        testL = testManager.findByProperties( filters, 1 );
+        Assert.assertEquals(1, testL.size());
+        
+        
+        // find various entities by its properties with limit and order
+        testL = testManager.findByProperties( filters, "-title", 1 );
+        Assert.assertEquals(1, testL.size());
+        Assert.assertEquals(test3Dto.getTitle(), testL.get(0).getTitle());
+        
+        
+        // find by an unindexed field
+        filters = new NameValueArray();
+        filters.Add("unindexedField", "value");
+        testL = testManager.findByProperties( filters );
+        Assert.assertEquals(0, testL.size());
+        
+        
+        // find by a text field should not be allowed
 		filters = new NameValueArray();
-		filters.Add("title", "Test Cheaper A");
-		testL = testManager.findByProperties( filters, "title", null );
-		Assert.assertEquals(1, testL.size());
-		Assert.assertEquals("Test Cheaper A", testL.get(0).getTitle());
+		filters.Add("summary", "Summary Cheaper");
+		testL = testManager.findByProperties( filters );
+		Assert.assertEquals(0, testL.size());
 		
 	}
 }

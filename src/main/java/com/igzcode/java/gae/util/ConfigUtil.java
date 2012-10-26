@@ -3,9 +3,9 @@ package com.igzcode.java.gae.util;
 import java.util.HashMap;
 import java.util.List;
 
+import com.google.gson.Gson;
 import com.igzcode.java.gae.configuration.ConfigurationDto;
 import com.igzcode.java.gae.configuration.ConfigurationManager;
-import com.igzcode.java.gae.serialization.DataTableList;
 
 /**
  * Utility for save/get/delete configuration values easily.
@@ -14,20 +14,22 @@ import com.igzcode.java.gae.serialization.DataTableList;
  */
 public class ConfigUtil {
 	
-	static private boolean _IsDev;
+	static private boolean isDev;
 	
-	static private HashMap<String, String> _AllCachedValues;
-	static private HashMap<String, String> _PublicCachedValues;
+	static private HashMap<String, String> allCachedValues;
+	static private HashMap<String, String> publicCachedValues;
+	
+	static private ConfigurationManager configurationManager = ConfigurationManager.getInstance();
 	
 	static {
-		String devPath = Get("DEV_PATH");
+		String devPath = get("DEV_PATH");
 		
 		if ( devPath != null ) {
 			String appPath = System.getProperty("user.dir");
-			_IsDev = appPath.equals(devPath);
+			isDev = appPath.equals(devPath);
 		}
 		else {
-			_IsDev = false;
+			isDev = false;
 			System.out.println("[Warning] DEV_PATH is not configurated ConfigUtil.IsDev() will be false");
 		}
 	}
@@ -37,8 +39,8 @@ public class ConfigUtil {
 	 * @param p_key The configuration key
 	 * @return The configuration value
 	 */
-	static public Integer GetInteger ( String p_key ) {
-		return Integer.valueOf( Get(p_key) );
+	static public Integer getInteger ( String p_key ) {
+		return Integer.valueOf( get(p_key) );
 	}
 	
 	/**
@@ -46,9 +48,9 @@ public class ConfigUtil {
 	 * @param p_key The configuration key
 	 * @return The configuration value
 	 */
-	static public String Get ( String p_key ) {
-		_CheckCachedValues();
-		return _AllCachedValues.get(p_key);
+	static public String get ( String p_key ) {
+		_checkCachedValues();
+		return allCachedValues.get(p_key);
 	}
 	
 	/**
@@ -57,56 +59,47 @@ public class ConfigUtil {
 	 * @param p_value The configuration value
 	 * @param p_private The configuration scope
 	 */
-	static public void Set ( String p_key, String p_value, Boolean p_private ) {
-		new ConfigurationManager().SetValue(p_key, p_value, p_private);
+	static public void set ( String p_key, String p_value, Boolean p_private ) {
+	    configurationManager.setValue(p_key, p_value, p_private);
 	}
 	
 	/**
 	 * Delete if exists a configuration value.
 	 * @param p_key The configuration key
 	 */
-	static public void Delete ( String p_key ) {
-		new ConfigurationManager().Delete( p_key );
+	static public void delete ( String p_key ) {
+	    configurationManager.delete( p_key );
 	}
 	
 	/**
 	 * Use this to get public configuration values in JavaScript environment.
 	 * @return A simple JSON with all public configurations values
 	 */
-	static public String GetPublicConfigJSON () {
-		_CheckCachedValues();
-		
-		DataTableList dtl = new DataTableList();
-		
-		if ( _PublicCachedValues != null && _PublicCachedValues.size() > 0 ) {
-			for (  String key : _PublicCachedValues.keySet() ) {
-				dtl.AddVar(key, _PublicCachedValues.get(key));
-			}
-		}
-		
-		return dtl.ToString();
+	static public String getPublicConfigJSON () {
+		_checkCachedValues();
+		return new Gson().toJson(publicCachedValues);
 	}
 
-	static private void _CheckCachedValues () {
-		if ( _AllCachedValues == null ) {
-			SetCachedValues();
+	static private void _checkCachedValues () {
+		if ( allCachedValues == null ) {
+			setCachedValues();
 		}
 	}
 	
 	/**
 	 * Refresh the cached values.
 	 */
-	static public void SetCachedValues () {
-		_PublicCachedValues = new HashMap<String, String>();
-		_AllCachedValues = new HashMap<String, String>();
-		List<ConfigurationDto> configs = (new ConfigurationManager()).FindAll();
+	static public void setCachedValues () {
+		publicCachedValues = new HashMap<String, String>();
+		allCachedValues = new HashMap<String, String>();
+		List<ConfigurationDto> configs = configurationManager.findAll();
 		
 		if ( configs != null && configs.size() > 0 ) {
 			for ( ConfigurationDto config : configs ) {
-				_AllCachedValues.put( config.GetKeyId(), config.GetValue() );
+				allCachedValues.put( config.getKeyId(), config.getValue() );
 				
-				if ( !config.IsPrivate() ) {
-					_PublicCachedValues.put( config.GetKeyId(), config.GetValue() );
+				if ( !config.isPrivate() ) {
+					publicCachedValues.put( config.getKeyId(), config.getValue() );
 				}
 			}
 		}
@@ -117,7 +110,7 @@ public class ConfigUtil {
 	 * 
 	 * @return A boolean that indicate if the current environment is localhost
 	 */
-	static public boolean IsDev () {
-		return _IsDev;
+	static public boolean isDev () {
+		return isDev;
 	}
 }

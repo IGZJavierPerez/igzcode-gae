@@ -10,4 +10,8 @@ public class TestFactory extends AbstractFactory<TestDto> {
 		ObjectifyService.register(TestDto.class);
 	}
 	
+	protected TestFactory () {
+	    super(TestDto.class);
+	}
+	
 }

@@ -10,18 +10,27 @@ import com.igzcode.java.util.StringUtil;
  * Manage configuration values.
  */
 public class ConfigurationManager extends ConfigurationFactory {
+    
+    private ConfigurationManager () {}
+    
+    static private ConfigurationManager configurationManager = new ConfigurationManager();
+    
+    static public ConfigurationManager getInstance () {
+        return configurationManager;
+    }
+    
 	
 	/**
 	 * If the configuration not exists, it will return null.
 	 * @param p_key The configuration key
 	 * @return The value of indicated configuration
 	 */
-	public String GetValue ( String p_key ) {
+	public String getValue ( String p_key ) {
 		String value = null;
 		
-		ConfigurationDto configDto = _Get(p_key);
+		ConfigurationDto configDto = get(p_key);
 		if ( configDto != null ) {
-			value = configDto.GetValue();
+			value = configDto.getValue();
 		}
 		
 		return value;
@@ -33,9 +42,9 @@ public class ConfigurationManager extends ConfigurationFactory {
 	 * @param p_value The configuration value
 	 * @param p_private Indicate if a configuration must be public or not
 	 */
-	public void SetValue ( String p_key, String p_value, Boolean p_private ) {
+	public void setValue ( String p_key, String p_value, Boolean p_private ) {
 		ConfigurationDto configDto = new ConfigurationDto(p_key, p_value, p_private);
-		_Save(configDto);
+		save(configDto);
 	}
 	
 	/**
@@ -50,12 +59,12 @@ public class ConfigurationManager extends ConfigurationFactory {
 	 * 
 	 * @param p_values Bidimensional String array with the values to save
 	 */
-	public void SetPublicValues ( String[][] p_values ) {
-		ArrayList<ConfigurationDto> valueDtos = new ArrayList<ConfigurationDto>();
+	public void setPublicValues ( String[][] p_values ) {
+		List<ConfigurationDto> valueDtos = new ArrayList<ConfigurationDto>();
 		for ( String[] value : p_values ) {
 			valueDtos.add( new ConfigurationDto( value[0], value[1], false ) );
 		}
-		_Save(valueDtos);
+		save(valueDtos);
 	}
 	
 	/**
@@ -69,57 +78,32 @@ public class ConfigurationManager extends ConfigurationFactory {
 	 * <pre>
 	 * @param p_values Bidimensional String array with the values to save
 	 */
-	public void SetPrivateValues ( String[][] p_values ) {
+	public void setPrivateValues ( String[][] p_values ) {
 		ArrayList<ConfigurationDto> valueDtos = new ArrayList<ConfigurationDto>();
 		for ( String[] value : p_values ) {
 			valueDtos.add( new ConfigurationDto( value[0], value[1], true ) );
 		}
-		_Save(valueDtos);
-	}
-
-	/**
-	 * Make a persistent delete.
-	 * @param p_key The configuration key
-	 */
-	public void Delete (String p_key) {
-		_Delete(p_key);
-	}
-
-	/**
-	 * Get a configuration value.
-	 * @param p_key The configuration key
-	 * @return A Configuration DTO
-	 */
-	public ConfigurationDto Get(String p_key) {
-		return _Get(p_key);
+		save(valueDtos);
 	}
 	
 	/**
 	 * Make a ConfigurationDto persistent.
+	 * Save only if configuration key and scope are not nulls.
 	 * @param p_configurationDto The key and private values must be not null
 	 * @return Indicates if the save operation was successful
 	 */
-	public boolean Save (ConfigurationDto p_configurationDto) {
-		if ( !StringUtil.IsNullOrEmpty(p_configurationDto.GetKeyId()) && p_configurationDto.IsPrivate() != null ) {
-			_Save(p_configurationDto);
+	public boolean saveSafe (ConfigurationDto p_configurationDto) {
+	    
+		if (    !StringUtil.IsNullOrEmpty(p_configurationDto.getKeyId())
+		     && p_configurationDto.isPrivate() != null 
+		) {
+		    
+			save(p_configurationDto);
+			
 			return true;
 		}
+		
 		return false;
-	}
-
-	/**
-	 * Find public and private configurations.
-	 * @return A list with all saved configuration DTOs
-	 */
-	public List<ConfigurationDto> FindAll () {
-		return _FindAll();
-	}
-	
-	/**
-	 * WARNING: Make a persistent and unrecoverable delete of all entities.
-	 */
-	public void DeleteAll() {
-		_DeleteAll();
 	}
 	
 }

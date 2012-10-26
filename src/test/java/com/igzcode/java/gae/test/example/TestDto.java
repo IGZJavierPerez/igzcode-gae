@@ -2,88 +2,89 @@ package com.igzcode.java.gae.test.example;
 
 import java.util.Date;
 
-import javax.persistence.Id;
-import javax.persistence.PrePersist;
+
 
 import com.google.appengine.api.datastore.Text;
-import com.googlecode.objectify.annotation.Unindexed;
-import com.igzcode.java.gae.pattern.AbstractEntity;
-import com.igzcode.java.gae.tag.Searchable;
+import com.googlecode.objectify.annotation.Entity;
+import com.googlecode.objectify.annotation.Id;
+import com.googlecode.objectify.annotation.Index;
+import com.googlecode.objectify.annotation.OnSave;
+import com.googlecode.objectify.annotation.Unindex;
 
-public class TestDto extends AbstractEntity {
+@Entity
+@Index
+public class TestDto {
 	
 	@Id
-	private Long _BookId;
+	private Long bookId;
 	
-	private Date _Created;
-	private Date _Updated;
+	private Date created;
+	private Date updated;
 	
-	@Searchable
-	private String _Title;
-	private Float _Price;
+	private String title;
+	private Float price;
 	
-	@Unindexed
-	private Text _Summary;
+	@Unindex
+	private Text summary;
 
 	public TestDto () {
 		super();
 	}
 	
 	public TestDto (Long p_bookId, String p_title, String p_summary, Float p_price) {
-		_BookId = p_bookId;
-		_Title = p_title;
-		_Summary = new Text(p_summary);
-		_Price = p_price;
+		bookId = p_bookId;
+		title = p_title;
+		summary = new Text(p_summary);
+		price = p_price;
 	}
 	
-	@PrePersist
-	@SuppressWarnings("unused")
-	private void _SetCreatedAndUpdated () {
-		if ( _BookId == null ) {
-			_Created = new Date();
+	@OnSave
+	private void setCreatedAndUpdated () {
+		if ( bookId == null ) {
+			created = new Date();
 		}
-		_Updated = new Date();
+		updated = new Date();
 	}
 	
 
-	public Long GetBookId() {
-		return _BookId;
+	public Long getBookId() {
+		return bookId;
 	}
-	public void SetBookId(Long bookId) {
-		this._BookId = bookId;
-	}
-	
-
-	public String GetTitle() {
-		return _Title;
-	}
-	public void SetTitle(String title) {
-		this._Title = title;
+	public void setBookId(Long bookId) {
+		this.bookId = bookId;
 	}
 	
 
-	public Float GetPrice() {
-		return _Price;
+	public String getTitle() {
+		return title;
 	}
-	public void SetPrice(Float price) {
-		this._Price = price;
+	public void setTitle(String title) {
+		this.title = title;
+	}
+	
+
+	public Float getPrice() {
+		return price;
+	}
+	public void setPrice(Float price) {
+		this.price = price;
 	}
 	
 	
-	public Date GetCreated() {
-		return _Created;
+	public Date getCreated() {
+		return created;
 	}
 	
-	public Date GetUpdated() {
-		return _Updated;
+	public Date getUpdated() {
+		return updated;
 	}
 
 	
-	public Text GetSummary() {
-		return _Summary;
+	public Text getSummary() {
+		return summary;
 	}
-	public void SetSummary ( Text p_summary ) {
-		this._Summary = p_summary;
+	public void setSummary ( Text p_summary ) {
+		this.summary = p_summary;
 	}
 	
 }

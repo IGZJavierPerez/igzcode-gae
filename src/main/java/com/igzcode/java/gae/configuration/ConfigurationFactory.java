@@ -12,4 +12,8 @@ public class ConfigurationFactory extends AbstractFactory<ConfigurationDto> {
 		ObjectifyService.register(ConfigurationDto.class);
 	}
 	
+	protected ConfigurationFactory () {
+	    super(ConfigurationDto.class);
+	}
+	
 }

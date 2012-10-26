@@ -1,27 +1,25 @@
 package com.igzcode.java.gae.pattern;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.ParameterizedType;
-import java.util.ArrayList;
+import static com.googlecode.objectify.ObjectifyService.ofy;
+
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import javax.persistence.Id;
-
 import com.googlecode.objectify.Key;
-import com.googlecode.objectify.Query;
-import com.googlecode.objectify.util.DAOBase;
+import com.googlecode.objectify.cmd.LoadType;
+import com.googlecode.objectify.cmd.Query;
+import com.igzcode.java.util.StringUtil;
 import com.igzcode.java.util.collection.NameValue;
 import com.igzcode.java.util.collection.NameValueArray;
-import com.igzcode.java.util.StringUtil;
 
 /**
  * Abstract class to implement the DTO-Factory-Manager pattern.
  * 
  * @param <DtoType> A POJO with Objectify Java annotations
  */
-public abstract class AbstractFactory<DtoType> extends DAOBase {
+public abstract class AbstractFactory<DtoType> {
+    
 	
 	/**
 	 * A Logger instance
@@ -32,27 +30,14 @@ public abstract class AbstractFactory<DtoType> extends DAOBase {
 	 * Class that represent a POJO with Objectify Java annotations
 	 */
 	protected final Class<DtoType> _DtoClass;
+
 	
-	/**
-	 * Identifier field name
-	 */
-	protected final String _KeyFieldName;
-	
-	@SuppressWarnings("unchecked")
-	public AbstractFactory () {
+//	@SuppressWarnings("unchecked")
+	protected AbstractFactory (Class<DtoType> p_class) {
 		
-		_DtoClass = (Class<DtoType>) ((ParameterizedType)getClass().getSuperclass().getGenericSuperclass()).getActualTypeArguments()[0];
-		
-		Field[] fields = _DtoClass.getDeclaredFields();
-		String keyFieldName = null;
-		for ( Field field : fields ) {
-			if ( field.isAnnotationPresent(Id.class) ) {
-				keyFieldName = field.getName();
-				break;
-			}
-		}
-		
-		_KeyFieldName = keyFieldName;
+	    _DtoClass = p_class;
+	    
+//		_DtoClass = (Class<DtoType>) ((ParameterizedType)getClass().getSuperclass().getGenericSuperclass()).getActualTypeArguments()[0];
 		
 	}
 	
@@ -61,8 +46,8 @@ public abstract class AbstractFactory<DtoType> extends DAOBase {
 	 * 
 	 * @return If the id does not exist in the datastore returns null.
 	 */
-	protected DtoType _Get ( String p_id ) {
-        return ofy().find( _DtoClass, p_id );
+	public DtoType get ( String p_id ) {
+        return ofy().load().type(_DtoClass).id(p_id).get();
 	}
 	
 	/**
@@ -70,8 +55,8 @@ public abstract class AbstractFactory<DtoType> extends DAOBase {
 	 * 
 	 * @return If the id does not exist in the datastore returns null.
 	 */
-	protected DtoType _Get ( long p_id ) {
-        return ofy().find( _DtoClass, p_id );
+	public DtoType get ( long p_id ) {
+	    return ofy().load().type(_DtoClass).id(p_id).get();
 	}
 	
 	/**
@@ -89,9 +74,9 @@ public abstract class AbstractFactory<DtoType> extends DAOBase {
 	 * </pre>
 	 * @return a collection of found entities mapped by its identifiers.
 	 */
-	protected Map<Long, DtoType> _GetByLongIds ( Iterable<Long> p_ids ) {
+	public Map<Long, DtoType> getByLongIds ( Iterable<Long> p_ids ) {
 		if ( p_ids != null ) {
-			return ofy().get(_DtoClass, p_ids);
+	        return ofy().load().type(_DtoClass).ids(p_ids);
 		}
 		else {
 			return null;
@@ -112,8 +97,13 @@ public abstract class AbstractFactory<DtoType> extends DAOBase {
 	 * 
 	 * @return a collection of found entities mapped by its identifiers.
 	 */
-	protected Map<String, DtoType> _GetByStringIds ( Iterable<String> p_ids ) {
-		return ofy().get(_DtoClass, p_ids);
+	public Map<String, DtoType> getByStringIds ( Iterable<String> p_ids ) {
+		if ( p_ids != null ) {
+            return ofy().load().type(_DtoClass).ids(p_ids);
+        }
+        else {
+            return null;
+        }
 	}
 	
 	/**
@@ -130,10 +120,21 @@ public abstract class AbstractFactory<DtoType> extends DAOBase {
 	 * 
 	 * @return if the key does not exist in the datastore returns null.
 	 */
-	protected DtoType _GetByProperty ( String p_filter, Object p_filterValue ) {
-		Query<DtoType> query = _GetQuery();
-        query.filter( p_filter, p_filterValue );
-        return query.get();
+	public DtoType getByProperty ( String p_filter, Object p_filterValue ) {
+	    return ofy().load().type(_DtoClass).filter(p_filter, p_filterValue).first().get();
+	}
+	
+	public DtoType getByProperties ( NameValueArray p_properties ) {
+	    if ( p_properties != null && p_properties.Size() > 0 ) {
+	        LoadType<DtoType> loader = ofy().load().type(_DtoClass);
+	        
+	        for ( NameValue nameValue : p_properties ) {
+	            loader.filter(nameValue.GetName(), nameValue.GetValue());
+	        }
+	        
+	        return loader.first().get();
+	    }
+	    return null;
 	}
 	
 	/**
@@ -151,8 +152,8 @@ public abstract class AbstractFactory<DtoType> extends DAOBase {
 	 * 
 	 * @param p_entity
 	 */
-	protected void _Save ( DtoType p_entity ) {
-		ofy().put( p_entity );
+	public void save ( DtoType p_entity ) {
+		ofy().save().entity(p_entity).now();
 	}
 	
 	/**
@@ -170,8 +171,8 @@ public abstract class AbstractFactory<DtoType> extends DAOBase {
 	 * @param p_entities Set of entities to save
 	 * @return a map with the created or updated entities sorted by their keys
 	 */
-	protected Map<Key<DtoType>, DtoType> _Save (Iterable<DtoType> p_entities ) {
-		return ofy().put( p_entities );
+	public Map<Key<DtoType>, DtoType> save (Iterable<DtoType> p_entities ) {
+		return ofy().save().entities( p_entities ).now();
 	}
 	
 	/**
@@ -189,12 +190,8 @@ public abstract class AbstractFactory<DtoType> extends DAOBase {
 	 * 
 	 * @param p_ids contain Long identifiers.
 	 */	
-	protected void _DeleteByLongIds ( Iterable<Long> p_ids ) {
-		ArrayList<Key<DtoType>> keys = new ArrayList<Key<DtoType>>();
-		for ( Long id : p_ids ) {
-			keys.add( new Key<DtoType>(_DtoClass, id) );
-		}
-		ofy().delete( keys );
+	public void deleteByLongIds ( Iterable<Long> p_ids ) {
+		ofy().delete().type(_DtoClass).ids(p_ids).now();
 	}
 	
 	/**
@@ -212,12 +209,8 @@ public abstract class AbstractFactory<DtoType> extends DAOBase {
 	 * 
 	 * @param p_ids contain string identifiers.
 	 */
-	protected void _DeleteByStringIds ( Iterable<String> p_ids ) {
-		ArrayList<Key<DtoType>> keys = new ArrayList<Key<DtoType>>();
-		for ( String id : p_ids ) {
-			keys.add( new Key<DtoType>(_DtoClass, id) );
-		}
-		ofy().delete( keys );
+	public void deleteByStringIds ( Iterable<String> p_ids ) {
+		ofy().delete().type(_DtoClass).ids(p_ids).now();
 	}
 
 	/**
@@ -232,8 +225,8 @@ public abstract class AbstractFactory<DtoType> extends DAOBase {
 	 * 
 	 * @param p_id Entity identifier
 	 */
-	protected void _Delete ( String p_id ) {
-		ofy().delete(_DtoClass, p_id );
+	public void delete ( String p_id ) {
+		ofy().delete().type(_DtoClass).id(p_id).now();
 	}
 	
 	/**
@@ -248,8 +241,8 @@ public abstract class AbstractFactory<DtoType> extends DAOBase {
 	 * 
 	 * @param p_id Entity identifier
 	 */
-	protected void _Delete ( long p_id ) {
-		ofy().delete(_DtoClass, p_id );
+	public void delete ( long p_id ) {
+	    ofy().delete().type(_DtoClass).id(p_id).now();
 	}
 	
 	/**
@@ -265,38 +258,9 @@ public abstract class AbstractFactory<DtoType> extends DAOBase {
 	 * @param p_filter A query filter
 	 * @param p_filterValue A query filter value
 	 */
-	protected void _Delete (String p_filter, Object p_filterValue) {
-		NameValueArray filterValue = new NameValueArray();
-		filterValue.Add(p_filter, p_filterValue);
-		_Delete(filterValue);
-	}
-	
-	/**
-	 * Delete zero or more entities by a set of specified filters.
-	 * A convenience method, shorthand for creating a query and set a collection of filters.
-	 * 
-	 * A quick example:
-	 * 
-	 * {@code
-	 * NameValueArray filters = new NameValueArray();
-	 * filters.add("age <", 18);
-	 * filters.add("gender <", Gender.Male);
-	 * _Delete(filters);
-	 * }
-	 * 
-	 * @param p_filters A query filter array
-	 * @param p_filterValues A query filter value array
-	 */
-	protected void _Delete ( NameValueArray p_filters ) {
-		Query<DtoType> query = _GetQuery();
-		
-		for (NameValue filter : p_filters ) {
-			query.filter( filter.GetName(), filter.GetValue() );
-		}
-		
-		Iterable<Key<DtoType>> keys = query.fetchKeys();
-		
-		ofy().delete(keys);
+	public void delete (String p_filter, Object p_filterValue) {
+	    List<Key<DtoType>> keys = ofy().load().type(_DtoClass).filter(p_filter, p_filterValue).keys().list();
+	    ofy().delete().keys(keys);
 	}
 	
 	/**
@@ -304,14 +268,14 @@ public abstract class AbstractFactory<DtoType> extends DAOBase {
 	 * 
 	 * A quick example:
 	 * 
+	 * @example
 	 * {@code
-	 * _DeleteAll();
+	 * deleteAll();
 	 * }
 	 */
-	protected void _DeleteAll () {
-		Query<DtoType> query = _GetQuery();
-		Iterable<Key<DtoType>> keys = query.fetchKeys();
-		ofy().delete(keys);
+	public void deleteAll () {
+	    List<Key<DtoType>> keys = ofy().load().type(_DtoClass).keys().list();
+	    ofy().delete().keys(keys).now();
 	}
 	
 	/**
@@ -325,8 +289,8 @@ public abstract class AbstractFactory<DtoType> extends DAOBase {
 	 * 
 	 * @return a list with all entities of this kind
 	 */
-	protected List<DtoType> _FindAll () {
-		return _FindAll(null);
+	public List<DtoType> findAll () {
+		return findAll(null);
 	}
 	
 	/**
@@ -335,82 +299,45 @@ public abstract class AbstractFactory<DtoType> extends DAOBase {
 	 * A quick example:
 	 * 
 	 * {@code
-	 * List<Book> books = _FindAll("title");
+	 * List<Book> books = findAll("title");
 	 * }
 	 * 
 	 * @param p_order query order
 	 * @return a list with all entities of this kind
 	 */
-	protected List<DtoType> _FindAll ( String p_order ) {
-		Query<DtoType> query = _GetQuery();
+	public List<DtoType> findAll ( String p_order ) {
+		Query<DtoType> query = ofy().load().type(_DtoClass);
 		
 		if ( !StringUtil.IsNullOrEmpty(p_order) ) {
-			query.order(p_order);
+		    query = query.order(p_order);
 		}
 		
 		return query.list();
 	}
 	
-	/**
-	 * "Full text search" in fields with the annotation @Searcheable
-	 * 
-	 * A quick example:
-	 * 
-	 * {@code
-	 * List<Book> books = _Find("cervantes", "price");
-	 * }
-	 * 
-	 * @param p_queryString the query text to search
-	 * @param p_order query order
-	 * 
-	 * @return a list with entities found ordered by p_order
-	 */
-	protected List<DtoType> _Find ( String p_queryString, String p_order ) {
-		return _Find( p_queryString, p_order, null );
-	}
-	
-	/**
-	 * "Full text search" in fields with the annotation \@Searcheable
-	 * 
-	 * A quick example:
-	 * 
-	 * {@code
-	 * List<Book> books = _Find("cervantes", "price", 20);
-	 * }
-	 * 
-	 * @param p_queryString the query text to search
-	 * @param p_order query order
-	 * @param p_limit max query results limit
-	 * 
-	 * @return a list with entities found ordered by p_order
-	 */
-	protected List<DtoType> _Find ( String p_queryString, String p_order, Integer p_limit ) {
-		return _Find(p_queryString, p_order, p_limit, null);
-	}
-	
-	protected List<DtoType> _Find ( String p_queryString, String p_order, Integer p_limit, NameValueArray p_filters ) {
+	public List<DtoType> find ( String p_order, Integer p_limit, NameValueArray p_filters ) {
 		
-		Query<DtoType> query = _GetQuery();
-		
-		if ( !StringUtil.IsNullOrEmpty(p_queryString) ) {
-			String[] words = StringUtil.RemoveAccents(p_queryString.trim().toLowerCase()).split(" ");
-			for ( String word : words ) {
-				query.filter("_SearchTokens", word);
-			}
-		}
+//	    limit is the maximum number of results the query will return.
+//	    offset is the number of results to skip before returning any results. Results that are skipped due to offset do not count against limit.
+//	    startCursor and endCursor are previously generated cursors that point to locations in a result set. If specified queries will start and end at these locations.
+//	    prefetchSize is the number of results retrieved on the first call to the datastore.
+	    
+	    
+	    // Query objects are now immutable (http://code.google.com/p/objectify-appengine/wiki/UpgradeVersion3ToVersion4)
+		Query<DtoType> query = ofy().load().type(_DtoClass);
 		
 		if ( p_filters != null ) {
 			for ( NameValue filter : p_filters ) {
-				query.filter( filter.GetName(), filter.GetValue() );
+			    query = query.filter( filter.GetName(), filter.GetValue() );
 			}
 		}
 		
 		if ( !StringUtil.IsNullOrEmpty(p_order) ) {
-			query.order(p_order);
+		    query = query.order(p_order);
 		}
 		
 		if ( p_limit != null && p_limit > 0 ) {
-			query.limit(p_limit);
+		    query = query.limit(p_limit);
 		}
 				
 		return query.list();
@@ -423,7 +350,7 @@ public abstract class AbstractFactory<DtoType> extends DAOBase {
 	 * A quick example:
 	 * 
 	 * {@code
-	 * List<Book> books = _FindByProperty("price >", 10);
+	 * List<Book> books = findByProperty("price >", 10);
 	 * }
 	 * 
 	 * @param p_filter A query filter
@@ -432,18 +359,18 @@ public abstract class AbstractFactory<DtoType> extends DAOBase {
 	 * 
 	 * @return a list of entities with the query results
 	 */
-	protected List<DtoType> _FindByProperty ( String p_filter, Object p_filterValue, String p_order, Integer p_limit ) {
+	public List<DtoType> findByProperty ( String p_filter, Object p_filterValue, String p_order, Integer p_limit ) {
 		NameValueArray filters = new NameValueArray();
 		filters.Add(p_filter, p_filterValue);
-		return _Find(null, p_order, p_limit, filters);
+		return find(p_order, p_limit, filters);
 	}
 
-	protected List<DtoType> _FindByProperty ( String p_filter, Object p_filterValue, String p_order) {
-		return _FindByProperty(p_filter, p_filterValue, p_order, null);
+	public List<DtoType> findByProperty ( String p_filter, Object p_filterValue, String p_order) {
+		return findByProperty(p_filter, p_filterValue, p_order, null);
 	}
 	
-	protected List<DtoType> _FindByProperty ( String p_filter, Object p_filterValue) {
-		return _FindByProperty(p_filter, p_filterValue, null, null);
+	public List<DtoType> findByProperty ( String p_filter, Object p_filterValue) {
+		return findByProperty(p_filter, p_filterValue, null, null);
 	}
 	/**
 	 * Search entities by a collection of filters.
@@ -462,23 +389,16 @@ public abstract class AbstractFactory<DtoType> extends DAOBase {
 	 * 
 	 * @return a list of entities with the query results
 	 */
-	protected List<DtoType> _FindByProperties ( NameValueArray p_filters, String p_order, Integer p_limit ) {
-		return _Find(null, p_order, p_limit, p_filters);
+	public List<DtoType> findByProperties ( NameValueArray p_filters, String p_order, Integer p_limit ) {
+	    return find(p_order, p_limit, p_filters);
 	}
 	
-	protected List<DtoType> _FindByProperties ( NameValueArray p_filters, String p_order ) {
-		return _FindByProperties(p_filters, p_order, null);
+	public List<DtoType> findByProperties ( NameValueArray p_filters, String p_order ) {
+	    return find(p_order, null, p_filters);
 	}
 	
-	protected List<DtoType> _FindByProperties ( NameValueArray p_filters) {
-		return _FindByProperties(p_filters, null, null);
-	}
-	
-	/**
-	 * A convenience method, shorthand for creating a query object.
-	 */
-	protected Query<DtoType> _GetQuery () {
-		return ofy().query(_DtoClass);
+	public List<DtoType> findByProperties ( NameValueArray p_filters) {
+	    return find(null, null, p_filters);
 	}
 	
 }

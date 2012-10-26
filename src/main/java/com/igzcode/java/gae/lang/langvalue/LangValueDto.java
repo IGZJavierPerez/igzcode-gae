@@ -1,10 +1,13 @@
 package com.igzcode.java.gae.lang.langvalue;
 
-import javax.persistence.Id;
+import com.googlecode.objectify.annotation.Entity;
+import com.googlecode.objectify.annotation.Id;
+
 
 /**
  * Language value entity
  */
+@Entity
 public class LangValueDto {
 
 	@Id

@@ -1,19 +1,20 @@
 package com.igzcode.java.gae.configuration;
 
-import javax.persistence.Id;
+import com.googlecode.objectify.annotation.Entity;
+import com.googlecode.objectify.annotation.Id;
 
-import com.googlecode.objectify.annotation.Cached;
+
 
 /**
  * Configuration entity
  */
-@Cached
+@Entity
 public class ConfigurationDto {
 	
 	@Id
-	private String _KeyId;
-	private String _Value;
-	private Boolean _Private;
+	private String keyId;
+	private String value;
+	private Boolean isPrivate;
 	
 	public ConfigurationDto () {
 		super();
@@ -22,53 +23,53 @@ public class ConfigurationDto {
 	public ConfigurationDto (String p_key, String p_value, Boolean p_private) {
 		super();
 		
-		_KeyId = p_key;
-		_Value = p_value;
-		_Private = p_private;
+		keyId = p_key;
+		value = p_value;
+		isPrivate = p_private;
 	}
 
 	/**
 	 * Configuration identifier.
 	 * @return The current configuration identifier
 	 */
-	public String GetKeyId() {
-		return _KeyId;
+	public String getKeyId() {
+		return this.keyId;
 	}
 
 	/**
 	 * Set the configuration identifier.
 	 */
-	public void SetKeyId(String _KeyId) {
-		this._KeyId = _KeyId;
+	public void setKeyId(String p_keyId) {
+		this.keyId = p_keyId;
 	}
 	
 	/**
 	 * Configuration value.
 	 * @return The current configuration value
 	 */
-	public String GetValue() {
-		return _Value;
+	public String getValue() {
+		return this.value;
 	}
 
 	/**
 	 * Set the configuration value.
 	 */
-	public void SetValue(String _Value) {
-		this._Value = _Value;
+	public void setValue(String p_value) {
+		this.value = p_value;
 	}
 
 	/**
 	 * Configuration scope.
 	 * @return Indicates if a configuration is public or private
 	 */
-	public Boolean IsPrivate() {
-		return _Private;
+	public Boolean isPrivate() {
+		return this.isPrivate;
 	}
 
 	/**
 	 * Set the configuration scope.
 	 */
-	public void SetPrivate(Boolean p_private) {
-		this._Private = p_private;
+	public void setPrivate(Boolean p_private) {
+		this.isPrivate = p_private;
 	}
 }

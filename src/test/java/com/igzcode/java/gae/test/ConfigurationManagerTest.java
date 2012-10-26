@@ -10,7 +10,7 @@ public class ConfigurationManagerTest extends LocalDatastoreTestCase {
 	private ConfigurationManager _confM = null;
 	
     private void _setUpTest() {
-    	_confM = new ConfigurationManager();
+    	_confM = ConfigurationManager.getInstance();
 		
     }
 
@@ -18,8 +18,8 @@ public class ConfigurationManagerTest extends LocalDatastoreTestCase {
 	public void testSetValue() {
 		_setUpTest();
 		
-		_confM.SetValue("key", "value", true);
-		String keyValue = _confM.GetValue("key");
+		_confM.setValue("key", "value", true);
+		String keyValue = _confM.getValue("key");
 		
 		Assert.assertEquals("value", keyValue);
 	}
@@ -28,8 +28,8 @@ public class ConfigurationManagerTest extends LocalDatastoreTestCase {
 	public void testGetValue() {
 		_setUpTest();
 		
-		_confM.SetValue("key", "value", true);
-		String keyValue = _confM.GetValue("key");
+		_confM.setValue("key", "value", true);
+		String keyValue = _confM.getValue("key");
 		
 		Assert.assertEquals("value", keyValue);
 	}

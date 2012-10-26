@@ -1,6 +1,5 @@
 package com.igzcode.java.gae.configuration;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.ws.rs.FormParam;
@@ -9,7 +8,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 
-import com.igzcode.java.gae.serialization.DataTableList;
+import com.google.gson.Gson;
 
 /**
  * Services to manage configuration values.
@@ -27,6 +26,8 @@ import com.igzcode.java.gae.serialization.DataTableList;
  */
 @Path("/config")
 public class ConfigurationService {
+    
+    static private ConfigurationManager configManager = ConfigurationManager.getInstance();
 	
 	/**
 	 * Get all saved configuration values.
@@ -38,14 +39,11 @@ public class ConfigurationService {
 	@Path("/find-all")
 	@Produces("application/json;charset=UTF-8")
 	static public String FindAll (){
-		DataTableList dtl = new DataTableList();
-		ConfigurationManager configM = new ConfigurationManager();
-		List<ConfigurationDto> configValues = new ArrayList<ConfigurationDto>();
-		configValues = configM.FindAll();
+	    Gson gson = new Gson();
+	    
+		List<ConfigurationDto> configValues = configManager.findAll();
 
-		dtl.AddTable("ConfigurationValues", configValues, ConfigurationDto.class );
-		
-		return dtl.ToString();
+		return gson.toJson(configValues);
 	}
 	
 	/**
@@ -61,22 +59,18 @@ public class ConfigurationService {
 	@PUT
 	@Path("/save")
 	@Produces("application/json;charset=UTF-8")
-	static public String Save (@FormParam("k") String p_key
-							, @FormParam("v") String p_value
-							, @FormParam("p") Boolean p_private
-							) {
-		
-		DataTableList dtl = new DataTableList();
+	static public ConfigurationDto put (  @FormParam("k") String p_key
+            							, @FormParam("v") String p_value
+            							, @FormParam("p") Boolean p_private
+            							) {
 		
 		ConfigurationDto configDto = new ConfigurationDto(p_key, p_value, p_private);
-		if ( new ConfigurationManager().Save(configDto) ) {
-			dtl.AddVar("OK","saved");
-		}
-		else {
-			dtl.AddVar("KO","invalid params");
+		
+		if ( configManager.saveSafe(configDto) ) {
+		    return configDto;
 		}
 		
-		return dtl.ToString();
+	    return null;
 	}
 	
 }

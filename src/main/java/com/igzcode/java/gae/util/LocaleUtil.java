@@ -8,6 +8,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.logging.Logger;
 
 import au.com.bytecode.opencsv.CSVReader;
 
@@ -19,60 +20,67 @@ import com.igzcode.java.gae.lang.langvalue.LangValueManager;
  */
 public class LocaleUtil {
 
+    static private final Logger logger = Logger.getLogger(LocaleUtil.class.getName());
 	
-	static private final String _LANG_URL;
+	static private final String LANG_URL;
 	
 	static {
-		_LANG_URL = ConfigUtil.Get("LANG_URL");
+		LANG_URL = ConfigUtil.get("LANG_URL");
 	}
 	
-	static private HashMap< String, HashMap<String,String> > _Contents = null;
+	static private HashMap< String, HashMap<String,String> > contents = null;
 	
-	static private List<LangValueDto> _LangValueDtos;
+	static private List<LangValueDto> langValueDtos;
+	
+	static private LangValueManager langValueManager;
 	
 	/**
 	 * Load previous saved translations.
 	 */
-	static public void LoadContentFromDatastore () {
-		LangValueManager valueM = new LangValueManager();
-		_LangValueDtos = valueM.FindAll();
+	static public void loadContentFromDatastore () {
+		langValueDtos = langValueManager.findAll();
 		
-		_Contents = new HashMap< String, HashMap<String,String> >();
+		contents = new HashMap< String, HashMap<String,String> >();
 		
 		LangValueDto valueDto;
-		int f, F= _LangValueDtos.size();
+		int f, F= langValueDtos.size();
 		for ( f=0; f<F; f++ ) {
-			valueDto = _LangValueDtos.get(f);
-			_AddContent(valueDto.GetLocale(), valueDto.GetKey(), valueDto.GetValue());
+			valueDto = langValueDtos.get(f);
+			addContent(valueDto.GetLocale(), valueDto.GetKey(), valueDto.GetValue());
 		}
 	}
 	
-	static private void _CheckContents (){
-		if ( ConfigUtil.IsDev() && _Contents == null ) {
-			_LoadContentToDev();
+	static private void checkContents () {
+		if ( ConfigUtil.isDev() && contents == null ) {
+			loadContentToDev();
 		}
-		else if ( _Contents == null ) {
-			LoadContentFromDatastore();
+		else if ( contents == null ) {
+			loadContentFromDatastore();
 		}
 	}
 	
-	static private void _LoadContentToDev () {
-		try {
-			URL url = new URL( _LANG_URL );
-			BufferedReader bufReader = new BufferedReader( new InputStreamReader(url.openStream(), "UTF-8") );
-			
-			CSVReader reader = new CSVReader(bufReader, ';', '"');
-			
-			_Contents = new HashMap< String, HashMap<String,String> >();
-			
-			String [] nextLine;
-		    while ((nextLine = reader.readNext()) != null) {
-		    	_AddContent(nextLine[0], nextLine[1], nextLine[2]);
-		    }
-		}
-		catch (IOException e) {
-			e.printStackTrace();
-		}
+	static private void loadContentToDev () {
+	    CSVReader reader;
+	    
+	    try {
+	        
+	        URL url = new URL( LANG_URL );
+	        BufferedReader bufReader = new BufferedReader( new InputStreamReader(url.openStream(), "UTF-8") );
+	        
+	        reader = new CSVReader(bufReader, ';', '"');
+	        
+	        contents = new HashMap< String, HashMap<String,String> >();
+	        
+	        String [] nextLine;
+	        while ((nextLine = reader.readNext()) != null) {
+	            addContent(nextLine[0], nextLine[1], nextLine[2]);
+	        }
+	        reader.close();
+	        
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        logger.severe("Error loading lang from [" + LANG_URL + "]: " + e.getMessage());
+	    }
 	}
 	
 	/**
@@ -81,29 +89,30 @@ public class LocaleUtil {
 	 * @param p_reader A input reader
 	 * @throws IOException
 	 */
-	static public void ImportContents ( Reader p_reader ) throws IOException {
-		LangValueManager langValueManager = new LangValueManager();
+	static public void importContents ( Reader p_reader ) throws IOException {
 		
 		CSVReader reader = new CSVReader(p_reader, ';', '"');
 		
-		_Contents = new HashMap< String, HashMap<String,String> >();
+		contents = new HashMap< String, HashMap<String,String> >();
 		
 		String [] line;
 		ArrayList<LangValueDto> langValues = new ArrayList<LangValueDto>();
 	    while ((line = reader.readNext()) != null) {
 	    	langValues.add( new LangValueDto(line[1], line[2], line[0]) );
-	    	_AddContent(line[0], line[1], line[2]);
+	    	addContent(line[0], line[1], line[2]);
 	    }
 	    
-	    langValueManager.DeleteAll();
-	    langValueManager.Save(langValues);
+	    reader.close();
+	    
+	    langValueManager.deleteAll();
+	    langValueManager.save(langValues);
 	}
 	
-	static private void _AddContent (String p_locale, String p_key, String p_value) {
-		if ( !_Contents.containsKey(p_locale) ) {
-			_Contents.put(p_locale, new HashMap<String, String>());
+	static private void addContent (String p_locale, String p_key, String p_value) {
+		if ( !contents.containsKey(p_locale) ) {
+			contents.put(p_locale, new HashMap<String, String>());
 		}
-		_Contents.get(p_locale).put(p_key, p_value);
+		contents.get(p_locale).put(p_key, p_value);
 	}
 	
 	/**
@@ -113,12 +122,12 @@ public class LocaleUtil {
 	 * @param p_locale Locale code like "es_ES"
 	 * @return Translation for locale specificated
 	 */
-	static public String GetText ( String p_key, String p_locale ) {
-		_CheckContents();
+	static public String getText ( String p_key, String p_locale ) {
+		checkContents();
 		
 		String text = "???" + p_key + "???";
-		if ( _Contents!=null && _Contents.containsKey(p_locale) && _Contents.get(p_locale).containsKey(p_key) ) {
-			text = _Contents.get(p_locale).get(p_key);
+		if ( contents!=null && contents.containsKey(p_locale) && contents.get(p_locale).containsKey(p_key) ) {
+			text = contents.get(p_locale).get(p_key);
 		}
 		return text;
 	}
@@ -127,10 +136,10 @@ public class LocaleUtil {
 	 * Get all translations.
 	 * @return A list with all translations
 	 */
-	static public List<LangValueDto> FindAll () {
-		_CheckContents();
+	static public List<LangValueDto> findAll () {
+		checkContents();
 		
-		return _LangValueDtos;
+		return langValueDtos;
 	}
 	
 	/**
@@ -138,9 +147,9 @@ public class LocaleUtil {
 	 * @param p_locale Locale code used to find translations
 	 * @return A map with the translations mapped by translation key for a locale
 	 */
-	static public HashMap<String,String> GetByLocale ( String p_locale ) {
-		_CheckContents();
+	static public HashMap<String,String> getByLocale ( String p_locale ) {
+		checkContents();
 		
-		return (_Contents!=null &&_Contents.containsKey(p_locale)) ? _Contents.get(p_locale) : new HashMap<String, String>();
+		return (contents!=null &&contents.containsKey(p_locale)) ? contents.get(p_locale) : new HashMap<String, String>();
 	}
 }

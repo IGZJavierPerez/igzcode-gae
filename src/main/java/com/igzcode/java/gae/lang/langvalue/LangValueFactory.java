@@ -23,8 +23,8 @@ public class LangValueFactory extends AbstractFactory<LangValueDto> {
 	
 	public LangValueDto get (String p_locale, String p_key) {
 	    NameValueArray filters = new NameValueArray();
-	    filters.Add("locale", p_locale);
-	    filters.Add("key", p_key);
+	    filters.add("locale", p_locale);
+	    filters.add("key", p_key);
 	    
 	    return getByProperties(filters);
 	}
@@ -38,11 +38,11 @@ public class LangValueFactory extends AbstractFactory<LangValueDto> {
     public List<LangValueDto> find ( String p_locale, String p_key ) {
         NameValueArray filters = new NameValueArray();
         
-        if ( !StringUtil.IsNullOrEmpty(p_key) ) {
-            filters.Add( "key", p_key );
+        if ( !StringUtil.isNullOrEmpty(p_key) ) {
+            filters.add( "key", p_key );
         }
-        if ( !StringUtil.IsNullOrEmpty(p_locale) ) {
-            filters.Add( "locale", p_locale );
+        if ( !StringUtil.isNullOrEmpty(p_locale) ) {
+            filters.add( "locale", p_locale );
         }
         
         return findByProperties( filters );

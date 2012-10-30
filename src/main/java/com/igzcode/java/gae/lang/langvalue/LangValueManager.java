@@ -21,9 +21,9 @@ public class LangValueManager extends LangValueFactory {
 	 * @param p_langValue The DTO to save
 	 */
 	public boolean saveSafe ( LangValueDto p_langValue ) {
-		if (   !StringUtil.IsNullOrEmpty(p_langValue.GetKey())
-			&& !StringUtil.IsNullOrEmpty(p_langValue.GetValue())
-			&& !StringUtil.IsNullOrEmpty(p_langValue.GetLocale())
+		if (   !StringUtil.isNullOrEmpty(p_langValue.GetKey())
+			&& !StringUtil.isNullOrEmpty(p_langValue.GetValue())
+			&& !StringUtil.isNullOrEmpty(p_langValue.GetLocale())
 			) {
 			
 			save(p_langValue);

@@ -125,11 +125,11 @@ public abstract class AbstractFactory<DtoType> {
 	}
 	
 	public DtoType getByProperties ( NameValueArray p_properties ) {
-	    if ( p_properties != null && p_properties.Size() > 0 ) {
+	    if ( p_properties != null && p_properties.size() > 0 ) {
 	        LoadType<DtoType> loader = ofy().load().type(_DtoClass);
 	        
 	        for ( NameValue nameValue : p_properties ) {
-	            loader.filter(nameValue.GetName(), nameValue.GetValue());
+	            loader.filter(nameValue.getName(), nameValue.getValue());
 	        }
 	        
 	        return loader.first().get();
@@ -308,7 +308,7 @@ public abstract class AbstractFactory<DtoType> {
 	public List<DtoType> findAll ( String p_order ) {
 		Query<DtoType> query = ofy().load().type(_DtoClass);
 		
-		if ( !StringUtil.IsNullOrEmpty(p_order) ) {
+		if ( !StringUtil.isNullOrEmpty(p_order) ) {
 		    query = query.order(p_order);
 		}
 		
@@ -328,11 +328,11 @@ public abstract class AbstractFactory<DtoType> {
 		
 		if ( p_filters != null ) {
 			for ( NameValue filter : p_filters ) {
-			    query = query.filter( filter.GetName(), filter.GetValue() );
+			    query = query.filter( filter.getName(), filter.getValue() );
 			}
 		}
 		
-		if ( !StringUtil.IsNullOrEmpty(p_order) ) {
+		if ( !StringUtil.isNullOrEmpty(p_order) ) {
 		    query = query.order(p_order);
 		}
 		
@@ -361,7 +361,7 @@ public abstract class AbstractFactory<DtoType> {
 	 */
 	public List<DtoType> findByProperty ( String p_filter, Object p_filterValue, String p_order, Integer p_limit ) {
 		NameValueArray filters = new NameValueArray();
-		filters.Add(p_filter, p_filterValue);
+		filters.add(p_filter, p_filterValue);
 		return find(p_order, p_limit, filters);
 	}
 

@@ -11,7 +11,7 @@
 	<version>2.0-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	<name>IGZCode GAE</name>
-	<description>A GAE library with design a pattern (DTO/factory/manager) and a few utility clases and anotations, like language manager, or @searcheable anotations for persistent objects</description>
+	<description>A GAE library with design a pattern (DTO/factory/manager) and a few utility clases and anotations, like language manager</description>
 
 	<developers>
 		<developer>
@@ -57,7 +57,7 @@
 		<dependency>
 			<groupId>com.igzcode.java</groupId>
 			<artifactId>igzcode-util</artifactId>
-			<version>1.5-SNAPSHOT</version>
+			<version>2.0-SNAPSHOT</version>
 		</dependency>
 		<!-- GOOGLE -->
 		<dependency>

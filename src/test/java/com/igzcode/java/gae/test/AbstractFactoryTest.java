@@ -221,9 +221,9 @@ public class AbstractFactoryTest extends LocalDatastoreTestCase {
 		
 		// find one entity by its properties
 		NameValueArray filters = new NameValueArray();
-		filters.Add("price", testDto.getPrice());
-		filters.Add("created", testDto.getCreated());
-		filters.Add("title", testDto.getTitle());
+		filters.add("price", testDto.getPrice());
+		filters.add("created", testDto.getCreated());
+		filters.add("title", testDto.getTitle());
 		List<TestDto> testL = testManager.findByProperties( filters );
 		
 		Assert.assertEquals(1, testL.size());
@@ -238,7 +238,7 @@ public class AbstractFactoryTest extends LocalDatastoreTestCase {
 		
 		
 		filters = new NameValueArray();
-		filters.Add("price", new Float(50.50));
+		filters.add("price", new Float(50.50));
 		
 		// find various entities by its properties
 		testL = testManager.findByProperties( filters );
@@ -272,14 +272,14 @@ public class AbstractFactoryTest extends LocalDatastoreTestCase {
         
         // find by an unindexed field
         filters = new NameValueArray();
-        filters.Add("unindexedField", "value");
+        filters.add("unindexedField", "value");
         testL = testManager.findByProperties( filters );
         Assert.assertEquals(0, testL.size());
         
         
         // find by a text field should not be allowed
 		filters = new NameValueArray();
-		filters.Add("summary", "Summary Cheaper");
+		filters.add("summary", "Summary Cheaper");
 		testL = testManager.findByProperties( filters );
 		Assert.assertEquals(0, testL.size());
 		

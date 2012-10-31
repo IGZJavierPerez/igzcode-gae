@@ -1,35 +1,39 @@
 package com.igzcode.java.gae.test;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
+import com.googlecode.objectify.ObjectifyService;
+import com.igzcode.java.gae.configuration.ConfigurationDto;
 import com.igzcode.java.gae.configuration.ConfigurationManager;
+import com.igzcode.java.gae.configuration.ConfigurationManager.InvalidConfigurationException;
 
 public class ConfigurationManagerTest extends LocalDatastoreTestCase {
 	
-	static private ConfigurationManager _confM = ConfigurationManager.getInstance();
+	static private ConfigurationManager _confM = new ConfigurationManager();
 	
-    private void _setUpTest() {}
+	@Override
+    @Before
+    public void setUp() {
+	    
+	    ObjectifyService.register(ConfigurationDto.class);
+	    
+        super.setUp();
+    }
 
-	@Test
-	public void testSetValue() {
-		_setUpTest();
+
+
+    @Test
+	public void testSaveValue() throws InvalidConfigurationException {
 		
-		_confM.setValue("key", "value", true);
-		String keyValue = _confM.getValue("key");
+		_confM.save("key", "value");
 		
-		Assert.assertEquals("value", keyValue);
+		ConfigurationDto config = _confM.get("key");
+		
+		Assert.assertEquals("value", config.getValue());
 	}
-	
-	@Test
-	public void testGetValue() {
-		_setUpTest();
-		
-		_confM.setValue("key", "value", true);
-		String keyValue = _confM.getValue("key");
-		
-		Assert.assertEquals("value", keyValue);
-	}
+
 	
 }
 

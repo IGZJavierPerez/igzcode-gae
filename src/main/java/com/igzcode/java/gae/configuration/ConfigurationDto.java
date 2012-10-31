@@ -12,35 +12,33 @@ import com.googlecode.objectify.annotation.Id;
 public class ConfigurationDto {
 	
 	@Id
-	private String keyId;
+	private String key;
 	private String value;
-	private Boolean isPrivate;
 	
 	public ConfigurationDto () {
 		super();
 	}
 	
-	public ConfigurationDto (String p_key, String p_value, Boolean p_private) {
+	public ConfigurationDto (String p_key, String p_value) {
 		super();
 		
-		keyId = p_key;
+		key = p_key;
 		value = p_value;
-		isPrivate = p_private;
 	}
 
 	/**
 	 * Configuration identifier.
 	 * @return The current configuration identifier
 	 */
-	public String getKeyId() {
-		return this.keyId;
+	public String getKey() {
+		return this.key;
 	}
 
 	/**
 	 * Set the configuration identifier.
 	 */
-	public void setKeyId(String p_keyId) {
-		this.keyId = p_keyId;
+	public void setKey(String p_keyId) {
+		this.key = p_keyId;
 	}
 	
 	/**
@@ -58,18 +56,4 @@ public class ConfigurationDto {
 		this.value = p_value;
 	}
 
-	/**
-	 * Configuration scope.
-	 * @return Indicates if a configuration is public or private
-	 */
-	public Boolean isPrivate() {
-		return this.isPrivate;
-	}
-
-	/**
-	 * Set the configuration scope.
-	 */
-	public void setPrivate(Boolean p_private) {
-		this.isPrivate = p_private;
-	}
 }

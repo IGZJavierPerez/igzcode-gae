@@ -25,7 +25,7 @@ public class LocaleUtil {
 	static private final String LANG_URL;
 	
 	static {
-		LANG_URL = ConfigUtil.get("LANG_URL");
+		LANG_URL = ConfigUtil.getInstance().getValue("LANG_URL");
 	}
 	
 	static private HashMap< String, HashMap<String,String> > contents = null;
@@ -51,7 +51,7 @@ public class LocaleUtil {
 	}
 	
 	static private void checkContents () {
-		if ( ConfigUtil.isDev() && contents == null ) {
+		if ( ConfigUtil.getInstance().isDev() && contents == null ) {
 			loadContentToDev();
 		}
 		else if ( contents == null ) {

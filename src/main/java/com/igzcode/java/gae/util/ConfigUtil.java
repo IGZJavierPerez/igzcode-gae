@@ -70,6 +70,7 @@ public class ConfigUtil {
      * @return The configuration value
      */
     public Integer getInteger(String p_key) {
+        checkCachedValues();
         return Integer.valueOf(getValue(p_key));
     }
 
@@ -97,6 +98,7 @@ public class ConfigUtil {
      * @throws InvalidConfigurationException 
      */
     public void save(String p_key, String p_value) throws InvalidConfigurationException {
+        checkCachedValues();
         configurationManager.save(p_key, p_value);
         cachedValues.put(p_key, p_value);
     }
@@ -108,6 +110,7 @@ public class ConfigUtil {
      *            The configuration key
      */
     public void delete(String p_key) {
+        checkCachedValues();
         if ( cachedValues.containsKey(p_key) ) {
             cachedValues.remove(p_key);
         }

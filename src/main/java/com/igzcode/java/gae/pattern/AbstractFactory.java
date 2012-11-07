@@ -24,18 +24,18 @@ public abstract class AbstractFactory<DtoType> {
 	/**
 	 * A Logger instance
 	 */
-	protected static final Logger _Log = Logger.getLogger(AbstractFactory.class.getName());
+	protected static final Logger LOGGER = Logger.getLogger(AbstractFactory.class.getName());
 	
 	/**
 	 * Class that represent a POJO with Objectify Java annotations
 	 */
-	protected final Class<DtoType> _DtoClass;
+	protected final Class<DtoType> DTO_CLASS;
 
 	
 //	@SuppressWarnings("unchecked")
 	protected AbstractFactory (Class<DtoType> p_class) {
 		
-	    _DtoClass = p_class;
+	    DTO_CLASS = p_class;
 	    
 //		_DtoClass = (Class<DtoType>) ((ParameterizedType)getClass().getSuperclass().getGenericSuperclass()).getActualTypeArguments()[0];
 		
@@ -47,7 +47,7 @@ public abstract class AbstractFactory<DtoType> {
 	 * @return If the id does not exist in the datastore returns null.
 	 */
 	public DtoType get ( String p_id ) {
-        return ofy().load().type(_DtoClass).id(p_id).get();
+        return ofy().load().type(DTO_CLASS).id(p_id).get();
 	}
 	
 	/**
@@ -56,7 +56,7 @@ public abstract class AbstractFactory<DtoType> {
 	 * @return If the id does not exist in the datastore returns null.
 	 */
 	public DtoType get ( long p_id ) {
-	    return ofy().load().type(_DtoClass).id(p_id).get();
+	    return ofy().load().type(DTO_CLASS).id(p_id).get();
 	}
 	
 	/**
@@ -76,7 +76,7 @@ public abstract class AbstractFactory<DtoType> {
 	 */
 	public Map<Long, DtoType> getByLongIds ( Iterable<Long> p_ids ) {
 		if ( p_ids != null ) {
-	        return ofy().load().type(_DtoClass).ids(p_ids);
+	        return ofy().load().type(DTO_CLASS).ids(p_ids);
 		}
 		else {
 			return null;
@@ -99,7 +99,7 @@ public abstract class AbstractFactory<DtoType> {
 	 */
 	public Map<String, DtoType> getByStringIds ( Iterable<String> p_ids ) {
 		if ( p_ids != null ) {
-            return ofy().load().type(_DtoClass).ids(p_ids);
+            return ofy().load().type(DTO_CLASS).ids(p_ids);
         }
         else {
             return null;
@@ -121,12 +121,12 @@ public abstract class AbstractFactory<DtoType> {
 	 * @return if the key does not exist in the datastore returns null.
 	 */
 	public DtoType getByProperty ( String p_filter, Object p_filterValue ) {
-	    return ofy().load().type(_DtoClass).filter(p_filter, p_filterValue).first().get();
+	    return ofy().load().type(DTO_CLASS).filter(p_filter, p_filterValue).first().get();
 	}
 	
-	public DtoType getByProperties ( NameValueArray p_properties ) {
+	protected DtoType getByProperties ( NameValueArray p_properties ) {
 	    if ( p_properties != null && p_properties.size() > 0 ) {
-	        LoadType<DtoType> loader = ofy().load().type(_DtoClass);
+	        LoadType<DtoType> loader = ofy().load().type(DTO_CLASS);
 	        
 	        for ( NameValue nameValue : p_properties ) {
 	            loader.filter(nameValue.getName(), nameValue.getValue());
@@ -191,7 +191,7 @@ public abstract class AbstractFactory<DtoType> {
 	 * @param p_ids contain Long identifiers.
 	 */	
 	public void deleteByLongIds ( Iterable<Long> p_ids ) {
-		ofy().delete().type(_DtoClass).ids(p_ids).now();
+		ofy().delete().type(DTO_CLASS).ids(p_ids).now();
 	}
 	
 	/**
@@ -210,7 +210,7 @@ public abstract class AbstractFactory<DtoType> {
 	 * @param p_ids contain string identifiers.
 	 */
 	public void deleteByStringIds ( Iterable<String> p_ids ) {
-		ofy().delete().type(_DtoClass).ids(p_ids).now();
+		ofy().delete().type(DTO_CLASS).ids(p_ids).now();
 	}
 
 	/**
@@ -226,7 +226,7 @@ public abstract class AbstractFactory<DtoType> {
 	 * @param p_id Entity identifier
 	 */
 	public void delete ( String p_id ) {
-		ofy().delete().type(_DtoClass).id(p_id).now();
+		ofy().delete().type(DTO_CLASS).id(p_id).now();
 	}
 	
 	/**
@@ -242,7 +242,7 @@ public abstract class AbstractFactory<DtoType> {
 	 * @param p_id Entity identifier
 	 */
 	public void delete ( long p_id ) {
-	    ofy().delete().type(_DtoClass).id(p_id).now();
+	    ofy().delete().type(DTO_CLASS).id(p_id).now();
 	}
 	
 	/**
@@ -259,7 +259,7 @@ public abstract class AbstractFactory<DtoType> {
 	 * @param p_filterValue A query filter value
 	 */
 	public void delete (String p_filter, Object p_filterValue) {
-	    List<Key<DtoType>> keys = ofy().load().type(_DtoClass).filter(p_filter, p_filterValue).keys().list();
+	    List<Key<DtoType>> keys = ofy().load().type(DTO_CLASS).filter(p_filter, p_filterValue).keys().list();
 	    ofy().delete().keys(keys);
 	}
 	
@@ -274,7 +274,7 @@ public abstract class AbstractFactory<DtoType> {
 	 * }
 	 */
 	public void deleteAll () {
-	    List<Key<DtoType>> keys = ofy().load().type(_DtoClass).keys().list();
+	    List<Key<DtoType>> keys = ofy().load().type(DTO_CLASS).keys().list();
 	    ofy().delete().keys(keys).now();
 	}
 	
@@ -306,7 +306,7 @@ public abstract class AbstractFactory<DtoType> {
 	 * @return a list with all entities of this kind
 	 */
 	public List<DtoType> findAll ( String p_order ) {
-		Query<DtoType> query = ofy().load().type(_DtoClass);
+		Query<DtoType> query = ofy().load().type(DTO_CLASS);
 		
 		if ( !StringUtil.isNullOrEmpty(p_order) ) {
 		    query = query.order(p_order);
@@ -324,7 +324,7 @@ public abstract class AbstractFactory<DtoType> {
 	    
 	    
 	    // Query objects are now immutable (http://code.google.com/p/objectify-appengine/wiki/UpgradeVersion3ToVersion4)
-		Query<DtoType> query = ofy().load().type(_DtoClass);
+		Query<DtoType> query = ofy().load().type(DTO_CLASS);
 		
 		if ( p_filters != null ) {
 			for ( NameValue filter : p_filters ) {

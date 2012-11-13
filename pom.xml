@@ -43,13 +43,14 @@
 
 	<scm>
 		<connection>scm:git:https://github.com/intelygenz/igzcode-gae.git</connection>
-	  <tag>HEAD</tag>
-  </scm>
+	    <tag>HEAD</tag>
+    </scm>
 
 	<properties>
-		<gae.version>1.7.0</gae.version>
+		<gae.version>1.7.3</gae.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<git.name>igzcode-gae</git.name>
+		<jersey.version>1.15</jersey.version>
 	</properties>
 	
 	<dependencies>
@@ -141,22 +142,22 @@
 		<dependency>
 			<groupId>com.sun.jersey</groupId>
 			<artifactId>jersey-server</artifactId>
-			<version>1.13-b01</version>
+			<version>${jersey.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.sun.jersey</groupId>
 			<artifactId>jersey-servlet</artifactId>
-			<version>1.13-b01</version>
+			<version>${jersey.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.sun.jersey</groupId>
 			<artifactId>jersey-core</artifactId>
-			<version>1.13-b01</version>
+			<version>${jersey.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.sun.jersey</groupId>
 			<artifactId>jersey-client</artifactId>
-			<version>1.13-b01</version>
+			<version>${jersey.version}</version>
 		</dependency>
 
 		<!-- TESTING -->

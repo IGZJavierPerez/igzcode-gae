@@ -314,6 +314,10 @@ public abstract class AbstractFactory<DtoType> {
 		
 		return query.list();
 	}
+
+	public List<DtoType> find ( Integer p_limit ) {
+		return find(null, p_limit, null);
+	}
 	
 	public List<DtoType> find ( String p_order, Integer p_limit, NameValueArray p_filters ) {
 		

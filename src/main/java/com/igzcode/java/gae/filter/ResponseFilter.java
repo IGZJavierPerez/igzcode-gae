@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.igzcode.java.gae.util.MailUtil;
+import com.igzcode.java.util.Trace;
 
 public class ResponseFilter implements Filter {
 
@@ -28,19 +29,18 @@ public class ResponseFilter implements Filter {
 
 	@Override
 	public void doFilter(ServletRequest p_req, ServletResponse p_resp, FilterChain p_filterChain) throws ServletException, IOException {
-		LOGGER.info("ResponseFilter Intercept");
-
+		
 		HttpServletRequest request = (HttpServletRequest) p_req;
 		ServletResponseWrapper response = new ServletResponseWrapper((HttpServletResponse)p_resp);
 		
 		String url = request.getRequestURL().toString();
 		
-		Throwable problem = null;
+		Exception problem = null;
 	    try {
 	    	p_filterChain.doFilter(p_req, response);
-	    } catch (Throwable t) {
-	        problem = t;
-	        t.printStackTrace();
+	    } catch (Exception e) {
+	        problem = e;
+	        Trace.error( e );
 	    }
 	    
 	    LOGGER.info("ResponseFilter check response");
@@ -62,18 +62,17 @@ public class ResponseFilter implements Filter {
 	    }
 	}
 
-	private void processError( Throwable p_exception, ServletResponse p_resp, String p_url){
-		LOGGER.info("SEND ERROR EMAIL");
+	private void processError( Exception p_exception, ServletResponse p_resp, String p_url){
+		LOGGER.info("IGZCODE ResponseFilter sending error email to " + mailTo);
 
 		String body = "Error accessing " + p_url;
 		if( p_exception != null ){
-			body = body + "\n\r" + p_exception.getMessage();
+			body = body + "\n\r" + Trace.error( p_exception );
 		}
         String subject = this.appName + " server error notification";
 	    String fromEmail = mailFrom;
 	    
-	    
-		//this.sendEmail(mailTo, fromEmail, body, subject);
+		this.sendEmail(mailTo, fromEmail, body, subject);
 	}
 	
 	private void sendEmail(String p_toMail, String p_fromEmail, String p_body, String p_subject) {

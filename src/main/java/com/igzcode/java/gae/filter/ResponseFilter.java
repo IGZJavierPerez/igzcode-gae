@@ -12,6 +12,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.igzcode.java.gae.util.ConfigUtil;
 import com.igzcode.java.gae.util.MailUtil;
 import com.igzcode.java.util.Trace;
 
@@ -23,43 +24,50 @@ public class ResponseFilter implements Filter {
 	private String mailTo = null;
 	private String appName = null;
 	
+	private Boolean disabled = false;
+	
 	@Override
 	public void destroy() {
 	}
 
 	@Override
 	public void doFilter(ServletRequest p_req, ServletResponse p_resp, FilterChain p_filterChain) throws ServletException, IOException {
-		
-		HttpServletRequest request = (HttpServletRequest) p_req;
-		ServletResponseWrapper response = new ServletResponseWrapper((HttpServletResponse)p_resp);
-		
-		String url = request.getRequestURL().toString();
-		
-		Exception problem = null;
-	    try {
-	    	p_filterChain.doFilter(p_req, response);
-	    } catch (Exception e) {
-	        problem = e;
-	        Trace.error( e );
-	    }
-	    
-	    LOGGER.info("ResponseFilter check response");
-	    
-	    if (problem != null) {
-	        this.processError(problem, p_resp, url);
-	        
-	        if (problem instanceof ServletException) {
-	            throw (ServletException) problem;
-	        }
-	        if (problem instanceof IOException) {
-	            throw (IOException) problem;
-	        }
-	    } else {
-	    	int status = response.getStatus();
-	 	    if ( status == HttpServletResponse.SC_INTERNAL_SERVER_ERROR ){
-	 	    	this.processError(problem, p_resp, url);
-	 	    }
-	    }
+		if( !this.disabled ){
+			
+			HttpServletRequest request = (HttpServletRequest) p_req;
+			ServletResponseWrapper response = new ServletResponseWrapper((HttpServletResponse)p_resp);
+			
+			String url = request.getRequestURL().toString();
+			
+			Exception problem = null;
+		    try {
+		    	p_filterChain.doFilter(p_req, response);
+		    } catch (Exception e) {
+		        problem = e;
+		        Trace.error( e );
+		    }
+		    
+		    LOGGER.info("ResponseFilter check response");
+		    
+		    if (problem != null) {
+		        this.processError(problem, p_resp, url);
+		        
+		        if (problem instanceof ServletException) {
+		            throw (ServletException) problem;
+		        }
+		        if (problem instanceof IOException) {
+		            throw (IOException) problem;
+		        }
+		    } else {
+		    	int status = response.getStatus();
+		 	    if ( status == HttpServletResponse.SC_INTERNAL_SERVER_ERROR ){
+		 	    	this.processError(problem, p_resp, url);
+		 	    }
+		    }
+		    
+		} else {
+			p_filterChain.doFilter(p_req, p_resp);
+		}
 	}
 
 	private void processError( Exception p_exception, ServletResponse p_resp, String p_url){
@@ -92,6 +100,13 @@ public class ResponseFilter implements Filter {
 	
 	@Override
 	public void init(FilterConfig filterConfig) throws ServletException {
+		ConfigUtil config = ConfigUtil.getInstance();
+        config.init();
+        
+        if ( config.isDev() ) {
+        	this.disabled = true;
+        }
+        
 		this.mailFrom = filterConfig.getInitParameter("mailFrom");
 		this.mailTo = filterConfig.getInitParameter("mailTo");
 		this.appName = filterConfig.getInitParameter("appName");
@@ -106,5 +121,4 @@ public class ResponseFilter implements Filter {
 			throw new ServletException("IgzcodeGAE ResponseFilter must be configured in web.xml. Please add appName param to the filter config.");
 		}
 	}
-
 }
